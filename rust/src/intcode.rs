@@ -51,7 +51,6 @@ impl Computer {
 
     fn execute_next(&mut self, output_stream: &mut Vec<i32>) {
         let instruction_code = self.program_state[self.instr_ptr];
-        dbg!(format!("instr {}: {}", self.instr_ptr, instruction_code));
         let op_code = instruction_code % 100;
         let param_modes = instruction_code / 100;
         match op_code {
