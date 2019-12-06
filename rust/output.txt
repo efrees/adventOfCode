@@ -1,0 +1,39 @@
+Day 1
+Total fuel requirements (initial): 3219099
+Total fuel requirements (iterated): 4825810
+Solved in 0.002559100s
+
+Day 2
+Output (part 1): 3409710
+Input values (part 2): 7912
+Solved in 3.066550600s
+
+Day 3
+Closest intersection (Manhattan): 2427
+Closest intersection (wire length): 27890
+Solved in 1.943526600s
+
+Day 4
+Qualified passwords (part 1): 1873
+Qualified passwords (part 2): 1264
+Solved in 0.041279300s
+
+Day 5
+Diagnostic output: [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    15508323,
+]
+Diagnostic code (part 1): 15508323
+Diagnostic code (part 2): 9006327
+Solved in 2.066322200s
+
+Total time:  7.120391800s
+
