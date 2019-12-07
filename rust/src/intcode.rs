@@ -2,6 +2,15 @@ pub struct Computer {
     program_state: Vec<i32>,
     instr_ptr: usize,
     input_stream: Vec<i32>,
+    pub run_state: RunState,
+}
+
+#[derive(PartialEq, Debug, Clone, Copy)]
+pub enum RunState {
+    Initial,
+    Running,
+    Halted,
+    Waiting,
 }
 
 impl Computer {
@@ -10,6 +19,7 @@ impl Computer {
             program_state: vec![99],
             instr_ptr: 0,
             input_stream: vec![],
+            run_state: RunState::Initial,
         }
     }
 
@@ -18,6 +28,7 @@ impl Computer {
             program_state: program_state,
             instr_ptr: 0,
             input_stream: vec![],
+            run_state: RunState::Initial,
         }
     }
 
@@ -42,7 +53,8 @@ impl Computer {
 
     /* Runs the loaded program and returns the value left in location 0 */
     pub fn run_program_with_output(&mut self, output_stream: &mut Vec<i32>) -> i32 {
-        while self.program_state[self.instr_ptr] != 99 {
+        self.run_state = RunState::Running;
+        while self.run_state == RunState::Running {
             self.execute_next(output_stream);
         }
 
@@ -62,6 +74,7 @@ impl Computer {
             6 => self.jump_false(param_modes),
             7 => self.lt(param_modes),
             8 => self.eq(param_modes),
+            99 => self.run_state = RunState::Halted,
             op => println!("Unknown opcode: {}", op),
         };
 
@@ -104,6 +117,11 @@ impl Computer {
     }
 
     fn input(&mut self, _param_modes: i32) {
+        if self.input_stream.is_empty() {
+            self.run_state = RunState::Waiting;
+            return;
+        }
+
         let result_operand = self.get_param(self.instr_ptr + 1, 1);
         self.program_state[result_operand as usize] = self.input_stream.remove(0);
 
