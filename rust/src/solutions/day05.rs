@@ -13,8 +13,7 @@ pub fn solve() {
     computer.set_input_stream(diagnostic_input);
     computer.run_program_with_output(&mut output_stream);
 
-    println!("Diagnostic output: {:#?}", output_stream);
-
+    // println!("Diagnostic output: {:#?}", output_stream);
     println!(
         "Diagnostic code (part 1): {}",
         output_stream.last().unwrap()
