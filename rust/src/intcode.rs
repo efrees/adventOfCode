@@ -1,6 +1,7 @@
 pub struct Computer<T> {
     program_state: Vec<T>,
     instr_ptr: usize,
+    rel_base: usize,
     input_stream: Vec<T>,
     pub run_state: RunState,
 }
@@ -13,11 +14,17 @@ pub enum RunState {
     Waiting,
 }
 
+pub fn parse_program(raw_program: &String) -> Vec<i64> {
+    let int_parser = |x: &str| x.parse::<i64>().unwrap();
+    return raw_program.trim().split(',').map(int_parser).collect();
+}
+
 impl Computer<i64> {
     pub fn new() -> Computer<i64> {
         Computer {
             program_state: vec![99],
             instr_ptr: 0,
+            rel_base: 0,
             input_stream: vec![],
             run_state: RunState::Initial,
         }
@@ -27,6 +34,7 @@ impl Computer<i64> {
         Computer {
             program_state: program_state,
             instr_ptr: 0,
+            rel_base: 0,
             input_stream: vec![],
             run_state: RunState::Initial,
         }
@@ -74,6 +82,7 @@ impl Computer<i64> {
             6 => self.jump_false(param_modes),
             7 => self.lt(param_modes),
             8 => self.eq(param_modes),
+            9 => self.rel_shift(param_modes),
             99 => self.run_state = RunState::Halted,
             op => println!("Unknown opcode: {}", op),
         };
@@ -86,7 +95,10 @@ impl Computer<i64> {
     fn add(&mut self, param_modes: i64) {
         let operands = self.get_operands(param_modes, 2);
         let result_operand = self.get_param(self.instr_ptr + 3, 1);
-        self.program_state[result_operand as usize] = operands[0] + operands[1];
+        let result_val = operands[0] + operands[1];
+
+        let write_mode = Self::get_param_mode(param_modes, 3);
+        self.write_safe_with_mode(result_operand, result_val, write_mode);
 
         self.instr_ptr += 4;
     }
@@ -94,7 +106,10 @@ impl Computer<i64> {
     fn mul(&mut self, param_modes: i64) {
         let operands = self.get_operands(param_modes, 2);
         let result_operand = self.get_param(self.instr_ptr + 3, 1);
-        self.program_state[result_operand as usize] = operands[0] * operands[1];
+        let result_val = operands[0] * operands[1];
+
+        let write_mode = Self::get_param_mode(param_modes, 3);
+        self.write_safe_with_mode(result_operand, result_val, write_mode);
 
         self.instr_ptr += 4;
     }
@@ -102,7 +117,10 @@ impl Computer<i64> {
     fn lt(&mut self, param_modes: i64) {
         let operands = self.get_operands(param_modes, 2);
         let result_operand = self.get_param(self.instr_ptr + 3, 1);
-        self.program_state[result_operand as usize] = if operands[0] < operands[1] { 1 } else { 0 };
+        let result_val = if operands[0] < operands[1] { 1 } else { 0 };
+
+        let write_mode = Self::get_param_mode(param_modes, 3);
+        self.write_safe_with_mode(result_operand, result_val, write_mode);
 
         self.instr_ptr += 4;
     }
@@ -110,20 +128,25 @@ impl Computer<i64> {
     fn eq(&mut self, param_modes: i64) {
         let operands = self.get_operands(param_modes, 2);
         let result_operand = self.get_param(self.instr_ptr + 3, 1);
-        self.program_state[result_operand as usize] =
-            if operands[0] == operands[1] { 1 } else { 0 };
+        let result_val = if operands[0] == operands[1] { 1 } else { 0 };
+
+        let write_mode = Self::get_param_mode(param_modes, 3);
+        self.write_safe_with_mode(result_operand, result_val, write_mode);
 
         self.instr_ptr += 4;
     }
 
-    fn input(&mut self, _param_modes: i64) {
+    fn input(&mut self, param_modes: i64) {
         if self.input_stream.is_empty() {
             self.run_state = RunState::Waiting;
             return;
         }
 
         let result_operand = self.get_param(self.instr_ptr + 1, 1);
-        self.program_state[result_operand as usize] = self.input_stream.remove(0);
+        let input_val = self.input_stream.remove(0);
+
+        let write_mode = Self::get_param_mode(param_modes, 1);
+        self.write_safe_with_mode(result_operand, input_val, write_mode);
 
         self.instr_ptr += 2;
     }
@@ -155,6 +178,13 @@ impl Computer<i64> {
         }
     }
 
+    fn rel_shift(&mut self, param_modes: i64) {
+        let operands = self.get_operands(param_modes, 1);
+        let new_base = self.rel_base as i64 + operands[0];
+        self.rel_base = new_base as usize;
+        self.instr_ptr += 2;
+    }
+
     fn get_operands(&mut self, param_modes: i64, operand_count: u8) -> Vec<i64> {
         let mut moded_operands = vec![];
         for i in 1..operand_count + 1 {
@@ -165,24 +195,52 @@ impl Computer<i64> {
         return moded_operands;
     }
 
-    fn get_param(&mut self, pointer: usize, param_mode: i64) -> i64 {
-        let raw_operand = self.program_state[pointer];
+    fn get_param(&mut self, pointer: usize, param_mode: u8) -> i64 {
+        let raw_operand = self.get_safe(pointer);
         if param_mode == 1 {
             return raw_operand;
+        } else if param_mode == 2 {
+            let absolute_position = self.rel_base as i64 + raw_operand;
+            return self.get_safe(absolute_position as usize);
         } else {
-            return self.program_state[raw_operand as usize];
+            return self.get_safe(raw_operand as usize);
         }
     }
 
     /** op_number should be the 1-based position of the desired operand.
      *  These are read right-to-left from the modes value.
      */
-    fn get_param_mode(param_modes: i64, op_number: u8) -> i64 {
+    fn get_param_mode(param_modes: i64, op_number: u8) -> u8 {
         let mut modes = param_modes;
         for _ in 1..op_number {
             modes /= 10;
         }
-        return modes % 10;
+        return (modes % 10) as u8;
+    }
+
+    fn write_safe_with_mode(&mut self, loc: i64, val: i64, loc_mode: u8) {
+        let write_pos = if loc_mode == 2 {
+            loc + self.rel_base as i64
+        } else {
+            loc
+        };
+
+        self.write_safe(write_pos as usize, val);
+    }
+
+    fn write_safe(&mut self, write_pos: usize, val: i64) {
+        if write_pos >= self.program_state.len() {
+            let additional_size = write_pos + 1 - self.program_state.len();
+            self.program_state.extend(vec![0; additional_size].iter());
+        }
+        self.program_state[write_pos] = val;
+    }
+
+    fn get_safe(&self, loc: usize) -> i64 {
+        if loc >= self.program_state.len() {
+            return 0;
+        }
+        return self.program_state[loc];
     }
 }
 
@@ -196,5 +254,39 @@ mod tests {
         assert_eq!(Computer::get_param_mode(1, 1), 1);
         assert_eq!(Computer::get_param_mode(1, 2), 0);
         assert_eq!(Computer::get_param_mode(10, 1), 0);
+    }
+
+    #[test]
+    fn test_mem_expansion() {
+        let program = vec![1101, 5, 7, 100, 4, 100, 99];
+        let mut computer = Computer::for_program(program);
+        let mut output = Vec::new();
+        computer.run_program_with_output(&mut output);
+
+        assert_eq!(*output.last().unwrap(), 12);
+    }
+
+    #[test]
+    fn test_input() {
+        let program = vec![3, 3, 104, -1, 99];
+        let mut computer = Computer::for_program(program);
+        let mut output = Vec::new();
+        let expected_val = 23;
+        computer.set_input_stream(vec![expected_val]);
+        computer.run_program_with_output(&mut output);
+
+        assert_eq!(*output.last().unwrap(), expected_val);
+    }
+
+    #[test]
+    fn test_rel_input() {
+        let program = vec![109, 2, 203, 3, 104, -1, 99];
+        let mut computer = Computer::for_program(program);
+        let mut output = Vec::new();
+        let expected_val = 23;
+        computer.set_input_stream(vec![expected_val]);
+        computer.run_program_with_output(&mut output);
+
+        assert_eq!(*output.last().unwrap(), expected_val);
     }
 }
