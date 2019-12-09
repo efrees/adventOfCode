@@ -1,5 +1,3 @@
-use intcode::*;
-
 pub fn solve() {
     println!("Day 8");
 
@@ -38,7 +36,7 @@ pub fn solve() {
 
     println!("Checksum (part 1): {}", checksum);
 
-    println!("Image (part 2): {}", checksum);
+    println!("Image (part 2):");
     let result_string: String = result_image
         .iter()
         .map(|&c| if c == '0' { ' ' } else { c })
