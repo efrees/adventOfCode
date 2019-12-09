@@ -1,7 +1,7 @@
-pub struct Computer {
-    program_state: Vec<i32>,
+pub struct Computer<T> {
+    program_state: Vec<T>,
     instr_ptr: usize,
-    input_stream: Vec<i32>,
+    input_stream: Vec<T>,
     pub run_state: RunState,
 }
 
@@ -13,8 +13,8 @@ pub enum RunState {
     Waiting,
 }
 
-impl Computer {
-    pub fn new() -> Computer {
+impl Computer<i64> {
+    pub fn new() -> Computer<i64> {
         Computer {
             program_state: vec![99],
             instr_ptr: 0,
@@ -23,7 +23,7 @@ impl Computer {
         }
     }
 
-    pub fn for_program(program_state: Vec<i32>) -> Computer {
+    pub fn for_program(program_state: Vec<i64>) -> Computer<i64> {
         Computer {
             program_state: program_state,
             instr_ptr: 0,
@@ -32,27 +32,27 @@ impl Computer {
         }
     }
 
-    pub fn load_program(&mut self, program_state: Vec<i32>) {
+    pub fn load_program(&mut self, program_state: Vec<i64>) {
         self.program_state = program_state;
         self.instr_ptr = 0;
     }
 
-    pub fn set_input_stream(&mut self, input_stream: Vec<i32>) {
+    pub fn set_input_stream(&mut self, input_stream: Vec<i64>) {
         self.input_stream = input_stream;
     }
 
-    pub fn set_noun_and_verb(&mut self, noun: i32, verb: i32) {
+    pub fn set_noun_and_verb(&mut self, noun: i64, verb: i64) {
         self.program_state[1] = noun;
         self.program_state[2] = verb;
     }
 
     /* Runs the loaded program and returns the value left in location 0 */
-    pub fn run_program(&mut self) -> i32 {
+    pub fn run_program(&mut self) -> i64 {
         return self.run_program_with_output(&mut vec![]);
     }
 
     /* Runs the loaded program and returns the value left in location 0 */
-    pub fn run_program_with_output(&mut self, output_stream: &mut Vec<i32>) -> i32 {
+    pub fn run_program_with_output(&mut self, output_stream: &mut Vec<i64>) -> i64 {
         self.run_state = RunState::Running;
         while self.run_state == RunState::Running {
             self.execute_next(output_stream);
@@ -61,7 +61,7 @@ impl Computer {
         return self.program_state[0];
     }
 
-    fn execute_next(&mut self, output_stream: &mut Vec<i32>) {
+    fn execute_next(&mut self, output_stream: &mut Vec<i64>) {
         let instruction_code = self.program_state[self.instr_ptr];
         let op_code = instruction_code % 100;
         let param_modes = instruction_code / 100;
@@ -83,7 +83,7 @@ impl Computer {
         }
     }
 
-    fn add(&mut self, param_modes: i32) {
+    fn add(&mut self, param_modes: i64) {
         let operands = self.get_operands(param_modes, 2);
         let result_operand = self.get_param(self.instr_ptr + 3, 1);
         self.program_state[result_operand as usize] = operands[0] + operands[1];
@@ -91,7 +91,7 @@ impl Computer {
         self.instr_ptr += 4;
     }
 
-    fn mul(&mut self, param_modes: i32) {
+    fn mul(&mut self, param_modes: i64) {
         let operands = self.get_operands(param_modes, 2);
         let result_operand = self.get_param(self.instr_ptr + 3, 1);
         self.program_state[result_operand as usize] = operands[0] * operands[1];
@@ -99,7 +99,7 @@ impl Computer {
         self.instr_ptr += 4;
     }
 
-    fn lt(&mut self, param_modes: i32) {
+    fn lt(&mut self, param_modes: i64) {
         let operands = self.get_operands(param_modes, 2);
         let result_operand = self.get_param(self.instr_ptr + 3, 1);
         self.program_state[result_operand as usize] = if operands[0] < operands[1] { 1 } else { 0 };
@@ -107,7 +107,7 @@ impl Computer {
         self.instr_ptr += 4;
     }
 
-    fn eq(&mut self, param_modes: i32) {
+    fn eq(&mut self, param_modes: i64) {
         let operands = self.get_operands(param_modes, 2);
         let result_operand = self.get_param(self.instr_ptr + 3, 1);
         self.program_state[result_operand as usize] =
@@ -116,7 +116,7 @@ impl Computer {
         self.instr_ptr += 4;
     }
 
-    fn input(&mut self, _param_modes: i32) {
+    fn input(&mut self, _param_modes: i64) {
         if self.input_stream.is_empty() {
             self.run_state = RunState::Waiting;
             return;
@@ -128,14 +128,14 @@ impl Computer {
         self.instr_ptr += 2;
     }
 
-    fn output(&mut self, param_modes: i32, output_stream: &mut Vec<i32>) {
+    fn output(&mut self, param_modes: i64, output_stream: &mut Vec<i64>) {
         let operands = self.get_operands(param_modes, 1);
         output_stream.push(operands[0]);
 
         self.instr_ptr += 2;
     }
 
-    fn jump_true(&mut self, param_modes: i32) {
+    fn jump_true(&mut self, param_modes: i64) {
         let operands = self.get_operands(param_modes, 2);
 
         if operands[0] != 0 {
@@ -145,7 +145,7 @@ impl Computer {
         }
     }
 
-    fn jump_false(&mut self, param_modes: i32) {
+    fn jump_false(&mut self, param_modes: i64) {
         let operands = self.get_operands(param_modes, 2);
 
         if operands[0] == 0 {
@@ -155,7 +155,7 @@ impl Computer {
         }
     }
 
-    fn get_operands(&mut self, param_modes: i32, operand_count: u8) -> Vec<i32> {
+    fn get_operands(&mut self, param_modes: i64, operand_count: u8) -> Vec<i64> {
         let mut moded_operands = vec![];
         for i in 1..operand_count + 1 {
             let pointer = self.instr_ptr + (i as usize);
@@ -165,7 +165,7 @@ impl Computer {
         return moded_operands;
     }
 
-    fn get_param(&mut self, pointer: usize, param_mode: i32) -> i32 {
+    fn get_param(&mut self, pointer: usize, param_mode: i64) -> i64 {
         let raw_operand = self.program_state[pointer];
         if param_mode == 1 {
             return raw_operand;
@@ -177,7 +177,7 @@ impl Computer {
     /** op_number should be the 1-based position of the desired operand.
      *  These are read right-to-left from the modes value.
      */
-    fn get_param_mode(param_modes: i32, op_number: u8) -> i32 {
+    fn get_param_mode(param_modes: i64, op_number: u8) -> i64 {
         let mut modes = param_modes;
         for _ in 1..op_number {
             modes /= 10;

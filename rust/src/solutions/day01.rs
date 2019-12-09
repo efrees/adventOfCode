@@ -3,12 +3,12 @@ pub fn solve() {
 
     let lines = adventlib::read_input_lines("day01input.txt");
 
-    let int_parser = |x: &String| x.parse::<i32>().unwrap();
-    let total: i32 = lines.iter().map(int_parser).map(fuel_for_mass).sum();
+    let int_parser = |x: &String| x.parse::<i64>().unwrap();
+    let total: i64 = lines.iter().map(int_parser).map(fuel_for_mass).sum();
 
     println!("Total fuel requirements (initial): {}", total);
 
-    let total: i32 = lines
+    let total: i64 = lines
         .iter()
         .map(int_parser)
         .map(converged_fuel_for_mass)
@@ -17,11 +17,11 @@ pub fn solve() {
     println!("Total fuel requirements (iterated): {}", total);
 }
 
-fn fuel_for_mass(mass: i32) -> i32 {
+fn fuel_for_mass(mass: i64) -> i64 {
     mass / 3 - 2
 }
 
-fn converged_fuel_for_mass(mass: i32) -> i32 {
+fn converged_fuel_for_mass(mass: i64) -> i64 {
     let mut mass_including_fuel = mass;
     let mut next_fuel_mass = fuel_for_mass(mass);
 

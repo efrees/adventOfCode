@@ -7,7 +7,7 @@ pub fn solve() {
     let diagnostic_input = vec![1];
 
     let program_state = parse_program(&raw_program);
-    let mut output_stream = Vec::<i32>::new();
+    let mut output_stream = Vec::new();
 
     let mut computer = Computer::for_program(program_state);
     computer.set_input_stream(diagnostic_input);
@@ -20,7 +20,7 @@ pub fn solve() {
     );
 
     let program_state = parse_program(&raw_program);
-    let mut output_stream = Vec::<i32>::new();
+    let mut output_stream = Vec::new();
 
     computer.load_program(program_state);
     computer.set_input_stream(vec![5]);
@@ -32,7 +32,7 @@ pub fn solve() {
     );
 }
 
-fn parse_program(raw_program: &String) -> Vec<i32> {
-    let int_parser = |x: &str| x.parse::<i32>().unwrap();
+fn parse_program(raw_program: &String) -> Vec<i64> {
+    let int_parser = |x: &str| x.parse::<i64>().unwrap();
     return raw_program.trim().split(',').map(int_parser).collect();
 }

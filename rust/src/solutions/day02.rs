@@ -5,8 +5,8 @@ pub fn solve() {
 
     let raw_program = adventlib::read_input_raw("day02input.txt");
 
-    let int_parser = |x: &str| x.parse::<i32>().unwrap();
-    let program_state: Vec<i32> = raw_program.trim().split(',').map(int_parser).collect();
+    let int_parser = |x: &str| x.parse::<i64>().unwrap();
+    let program_state: Vec<_> = raw_program.trim().split(',').map(int_parser).collect();
 
     let mut computer = Computer::for_program(program_state);
     computer.set_noun_and_verb(12, 2);
@@ -20,7 +20,7 @@ pub fn solve() {
     'outer: while noun < 100 {
         verb = 0;
         while verb < 100 {
-            let program_state: Vec<i32> = raw_program.trim().split(',').map(int_parser).collect();
+            let program_state: Vec<_> = raw_program.trim().split(',').map(int_parser).collect();
 
             computer.load_program(program_state);
             computer.set_noun_and_verb(noun, verb);
