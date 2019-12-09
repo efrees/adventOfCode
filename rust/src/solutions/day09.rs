@@ -8,22 +8,18 @@ pub fn solve() {
     let mut computer = Computer::new();
 
     let program_state = parse_program(&raw_program);
-    let mut output_stream = Vec::new();
 
     computer.load_program(program_state);
     computer.set_input_stream(vec![1]);
-    computer.run_program_with_output(&mut output_stream);
+    let last_output = computer.run_program();
 
-    // println!("Diagnostic: {:#?}", output_stream);
-    println!("BOOST keycode (part 1): {}", output_stream.last().unwrap());
+    println!("BOOST keycode (part 1): {}", last_output.unwrap());
 
     let program_state = parse_program(&raw_program);
-    let mut output_stream = Vec::new();
 
     computer.load_program(program_state);
     computer.set_input_stream(vec![2]);
-    computer.run_program_with_output(&mut output_stream);
+    let last_output = computer.run_program();
 
-    // println!("Diagnostic: {:#?}", output_stream);
-    println!("Coordinates (part 2): {}", output_stream.last().unwrap());
+    println!("Coordinates (part 2): {}", last_output.unwrap());
 }

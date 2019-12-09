@@ -54,19 +54,24 @@ impl Computer<i64> {
         self.program_state[2] = verb;
     }
 
+    pub fn get_value_at_zero(&self) -> i64 {
+        return self.program_state[0];
+    }
+
     /* Runs the loaded program and returns the value left in location 0 */
-    pub fn run_program(&mut self) -> i64 {
+    pub fn run_program(&mut self) -> Option<i64> {
         return self.run_program_with_output(&mut vec![]);
     }
 
     /* Runs the loaded program and returns the value left in location 0 */
-    pub fn run_program_with_output(&mut self, output_stream: &mut Vec<i64>) -> i64 {
+    pub fn run_program_with_output(&mut self, output_stream: &mut Vec<i64>) -> Option<i64> {
         self.run_state = RunState::Running;
         while self.run_state == RunState::Running {
             self.execute_next(output_stream);
         }
 
-        return self.program_state[0];
+        // println!("Diagnostic output: {:#?}", output_stream);
+        return output_stream.last().cloned();
     }
 
     fn execute_next(&mut self, output_stream: &mut Vec<i64>) {

@@ -113,11 +113,8 @@ fn create_computer(raw_program: &String) -> Computer<i64> {
 }
 
 fn run_computer_for_input(computer: &mut Computer<i64>, input: Vec<i64>) -> i64 {
-    let mut output_stream = Vec::new();
     computer.set_input_stream(input);
-    computer.run_program_with_output(&mut output_stream);
-
-    return *output_stream.last().unwrap();
+    return computer.run_program().unwrap();
 }
 
 fn parse_program(raw_program: &String) -> Vec<i64> {

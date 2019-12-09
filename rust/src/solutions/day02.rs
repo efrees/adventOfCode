@@ -11,7 +11,8 @@ pub fn solve() {
     let mut computer = Computer::for_program(program_state);
     computer.set_noun_and_verb(12, 2);
 
-    let output = computer.run_program();
+    computer.run_program();
+    let output = computer.get_value_at_zero();
 
     println!("Output (part 1): {}", output);
 
@@ -25,7 +26,8 @@ pub fn solve() {
             computer.load_program(program_state);
             computer.set_noun_and_verb(noun, verb);
 
-            let output = computer.run_program();
+            computer.run_program();
+            let output = computer.get_value_at_zero();
 
             if output == 19690720 {
                 break 'outer;

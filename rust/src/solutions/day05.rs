@@ -7,29 +7,20 @@ pub fn solve() {
     let diagnostic_input = vec![1];
 
     let program_state = parse_program(&raw_program);
-    let mut output_stream = Vec::new();
 
     let mut computer = Computer::for_program(program_state);
     computer.set_input_stream(diagnostic_input);
-    computer.run_program_with_output(&mut output_stream);
+    let last_output = computer.run_program();
 
-    // println!("Diagnostic output: {:#?}", output_stream);
-    println!(
-        "Diagnostic code (part 1): {}",
-        output_stream.last().unwrap()
-    );
+    println!("Diagnostic code (part 1): {}", last_output.unwrap());
 
     let program_state = parse_program(&raw_program);
-    let mut output_stream = Vec::new();
 
     computer.load_program(program_state);
     computer.set_input_stream(vec![5]);
-    computer.run_program_with_output(&mut output_stream);
+    let last_output = computer.run_program();
 
-    println!(
-        "Diagnostic code (part 2): {}",
-        output_stream.last().unwrap()
-    );
+    println!("Diagnostic code (part 2): {}", last_output.unwrap());
 }
 
 fn parse_program(raw_program: &String) -> Vec<i64> {
