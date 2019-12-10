@@ -34,6 +34,13 @@ impl Point {
     pub fn manhattan_dist_to(&self, other: &Point) -> i64 {
         (self.x - other.x).abs() + (self.y - other.y).abs()
     }
+
+    pub fn vec_subtract(&self, other: &Point) -> Point {
+        Point {
+            x: self.x - other.x,
+            y: self.y - other.y,
+        }
+    }
 }
 
 #[derive(PartialEq, Debug, Clone, Copy)]
