@@ -41,6 +41,13 @@ impl Point {
             y: self.y - other.y,
         }
     }
+
+    pub fn vec_add(&self, other: &Point) -> Point {
+        Point {
+            x: self.x + other.x,
+            y: self.y - other.y,
+        }
+    }
 }
 
 #[derive(PartialEq, Debug, Clone, Copy)]
