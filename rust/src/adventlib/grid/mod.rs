@@ -50,6 +50,35 @@ impl Point {
     }
 }
 
+#[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash, Debug)]
+pub struct Point3d {
+    pub x: i64,
+    pub y: i64,
+    pub z: i64,
+}
+
+impl Point3d {
+    pub fn new(x: i64, y: i64, z: i64) -> Point3d {
+        Point3d { x: x, y: y, z: z }
+    }
+
+    pub fn origin() -> Point3d {
+        Point3d::new(0, 0, 0)
+    }
+
+    pub fn manhattan_dist_to(&self, other: &Point3d) -> i64 {
+        (self.x - other.x).abs() + (self.y - other.y).abs() + (self.z - other.z).abs()
+    }
+
+    pub fn vec_add(&self, other: &Point3d) -> Point3d {
+        Point3d {
+            x: self.x + other.x,
+            y: self.y - other.y,
+            z: self.z - other.z,
+        }
+    }
+}
+
 #[derive(PartialEq, Debug, Clone, Copy)]
 pub enum Direction {
     Up,

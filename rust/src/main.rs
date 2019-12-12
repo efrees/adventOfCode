@@ -1,7 +1,8 @@
 extern crate adventlib;
 extern crate chrono;
-extern crate lazy_static;
 extern crate regex;
+#[macro_use]
+extern crate lazy_static;
 
 use std::time::Instant;
 
@@ -26,6 +27,7 @@ fn solve_all() {
     time(&day09::solve);
     time(&day10::solve);
     time(&day11::solve);
+    time(&day12::solve);
 }
 
 fn time(f: &dyn Fn()) {
