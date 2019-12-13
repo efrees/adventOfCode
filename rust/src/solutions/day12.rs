@@ -1,5 +1,6 @@
 use adventlib::grid::*;
 use regex::Regex;
+use std::collections::*;
 
 pub fn solve() {
     println!("Day 12");
@@ -40,6 +41,69 @@ pub fn solve() {
 
     let total_energy = get_total_energy(&moons, &velocities);
     println!("Total energy (part 1): {}", total_energy);
+
+    let x_loop = simulate_dimension_until_loop(
+        moons.iter().map(|&m| m.x).collect(),
+        velocities.iter().map(|&v| v.x).collect(),
+    );
+    let y_loop = simulate_dimension_until_loop(
+        moons.iter().map(|&m| m.y).collect(),
+        velocities.iter().map(|&v| v.y).collect(),
+    );
+    let z_loop = simulate_dimension_until_loop(
+        moons.iter().map(|&m| m.z).collect(),
+        velocities.iter().map(|&v| v.z).collect(),
+    );
+}
+
+fn simulate_dimension_until_loop(mut locations: Vec<i64>, mut velocities: Vec<i64>) -> i64 {
+    // Same simulation, but independent for x, y, and z
+    // Hoping to find lcm of separate loops
+
+    // x
+    let mut seen_states = HashMap::new();
+    let mut time_steps = 0_i64;
+    let mut last_state = Point::new(0, 0);
+    while !seen_states.contains_key(&last_state) {
+        seen_states.insert(last_state, time_steps);
+        time_steps += 1;
+
+        for (i, moon) in locations.iter().enumerate() {
+            let pull: i64 = locations
+                .iter()
+                .map(|&other| normalized_compare(other, *moon))
+                .sum();
+
+            let cur_velocity = velocities[i];
+            let new_velocity = cur_velocity + pull;
+            velocities[i] = new_velocity;
+        }
+
+        locations = locations
+            .iter()
+            .zip(velocities.iter())
+            .map(|(m, v)| m + v)
+            .collect();
+
+        // Assuming ~4 points and <= two-digit magnitudes
+        let mut state_l = 0;
+        for loc in locations.iter() {
+            state_l *= 100;
+            state_l += loc;
+        }
+        let mut state_v = 0;
+        for vel in velocities.iter() {
+            state_v *= 100;
+            state_v += vel;
+        }
+
+        last_state = Point::new(state_l, state_v);
+    }
+
+    let loop_len = time_steps - seen_states.get(&last_state).unwrap();
+
+    println!("found loop: {}", loop_len);
+    return loop_len;
 }
 
 fn parse_moon(raw_moon: &String) -> Point3d {
