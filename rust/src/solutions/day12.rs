@@ -42,21 +42,42 @@ pub fn solve() {
     let total_energy = get_total_energy(&moons, &velocities);
     println!("Total energy (part 1): {}", total_energy);
 
+    for i in 1..100000000 {
+        let x = 170472058848_u64 * i - 81067670;
+        if x % 7067924 == 0 {
+            println!("{}: {}", i, x + 81067670);
+        }
+    }
     let x_loop = simulate_dimension_until_loop(
         moons.iter().map(|&m| m.x).collect(),
         velocities.iter().map(|&v| v.x).collect(),
     );
+    println!("x loop: {:#?}", x_loop);
     let y_loop = simulate_dimension_until_loop(
         moons.iter().map(|&m| m.y).collect(),
         velocities.iter().map(|&v| v.y).collect(),
     );
+    println!("y loop: {:#?}", y_loop);
     let z_loop = simulate_dimension_until_loop(
         moons.iter().map(|&m| m.z).collect(),
         velocities.iter().map(|&v| v.z).collect(),
     );
+    println!("z loop: {:#?}", z_loop);
+    // x loop: (
+    //     1,
+    //     268296,
+    // )
+    // y loop: (
+    //     1,
+    //     15249312,
+    // )
+    // z loop: (
+    //     81067670,
+    //     7067924,
+    // )
 }
 
-fn simulate_dimension_until_loop(mut locations: Vec<i64>, mut velocities: Vec<i64>) -> i64 {
+fn simulate_dimension_until_loop(mut locations: Vec<i64>, mut velocities: Vec<i64>) -> (i64, i64) {
     // Same simulation, but independent for x, y, and z
     // Hoping to find lcm of separate loops
 
@@ -100,10 +121,10 @@ fn simulate_dimension_until_loop(mut locations: Vec<i64>, mut velocities: Vec<i6
         last_state = Point::new(state_l, state_v);
     }
 
-    let loop_len = time_steps - seen_states.get(&last_state).unwrap();
+    let loop_start = seen_states.get(&last_state).unwrap();
+    let loop_len = time_steps - loop_start;
 
-    println!("found loop: {}", loop_len);
-    return loop_len;
+    return (*loop_start, loop_len);
 }
 
 fn parse_moon(raw_moon: &String) -> Point3d {
