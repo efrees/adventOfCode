@@ -1,3 +1,7 @@
+use std::cmp;
+use std::collections::hash_map::Iter;
+use std::collections::HashMap;
+
 #[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash, Debug)]
 pub struct Point {
     pub x: i64,
@@ -134,5 +138,57 @@ impl Direction {
             Direction::Left => Direction::Up,
             Direction::Right => Direction::Down,
         }
+    }
+}
+
+pub struct SparseGrid<TContents> {
+    grid_contents: HashMap<Point, TContents>,
+    min_x: i64,
+    min_y: i64,
+    max_x: i64,
+    max_y: i64,
+}
+
+impl<TContents> SparseGrid<TContents> {
+    pub fn new() -> SparseGrid<TContents> {
+        SparseGrid {
+            grid_contents: HashMap::<Point, TContents>::new(),
+            min_x: std::i64::MAX,
+            min_y: std::i64::MAX,
+            max_x: std::i64::MIN,
+            max_y: std::i64::MIN,
+        }
+    }
+
+    pub fn get(&self, location: &Point) -> Option<&TContents> {
+        self.grid_contents.get(location)
+    }
+
+    pub fn insert(&mut self, location: Point, value: TContents) {
+        self.grid_contents.insert(location, value);
+
+        self.min_x = cmp::min(self.min_x, location.x);
+        self.min_y = cmp::min(self.min_y, location.y);
+        self.max_x = cmp::max(self.max_x, location.x);
+        self.max_y = cmp::max(self.max_y, location.y);
+    }
+
+    pub fn len(&self) -> usize {
+        self.grid_contents.keys().len()
+    }
+
+    pub fn print(&self, cell_printer: &dyn (Fn(Option<&TContents>) -> char)) {
+        // flipping the y-direction because the problems usually put y==0 at the top
+        for i in (self.min_y..=self.max_y).rev() {
+            for j in self.min_x..=self.max_x {
+                let contents = self.grid_contents.get(&Point::new(j, i));
+                print!("{}", cell_printer(contents));
+            }
+            println!("");
+        }
+    }
+
+    pub fn iter(&self) -> Iter<Point, TContents> {
+        self.grid_contents.iter()
     }
 }

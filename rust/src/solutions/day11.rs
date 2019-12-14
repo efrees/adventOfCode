@@ -1,40 +1,32 @@
 use adventlib::grid::*;
 use intcode::*;
-use std::collections::*;
 
 pub fn solve() {
     println!("Day 11");
 
     let raw_program = adventlib::read_input_raw("day11input.txt");
 
-    let mut grid_state = HashMap::<Point, i64>::new();
+    let mut grid_state = SparseGrid::<i64>::new();
     paint_grid(&mut grid_state, &raw_program);
 
-    println!(
-        "Number of cells touched (part 1): {}",
-        grid_state.keys().len()
-    );
+    println!("Number of cells touched (part 1): {}", grid_state.len());
 
-    let mut grid_state = HashMap::<Point, i64>::new();
+    let mut grid_state = SparseGrid::<i64>::new();
     grid_state.insert(Point::new(0, 0), 1);
     paint_grid(&mut grid_state, &raw_program);
 
-    let min_y = grid_state.keys().map(|&p| p.y).min().unwrap();
-    let max_y = grid_state.keys().map(|&p| p.y).max().unwrap();
-    let min_x = grid_state.keys().map(|&p| p.x).min().unwrap();
-    let max_x = grid_state.keys().map(|&p| p.x).max().unwrap();
-
     println!("Letters traced by robot (part 2):");
-    for i in (min_y..=max_y).rev() {
-        for j in min_x..=max_x {
-            let color = grid_state.get(&Point::new(j, i)).cloned().unwrap_or(0);
-            print!("{}", if color == 1 { '#' } else { ' ' });
+    let cell_printer = |c: Option<&i64>| {
+        if c.cloned().unwrap_or(0) == 1 {
+            '#'
+        } else {
+            ' '
         }
-        println!("");
-    }
+    };
+    grid_state.print(&cell_printer)
 }
 
-fn paint_grid(grid_state: &mut HashMap<Point, i64>, raw_program: &String) {
+fn paint_grid(grid_state: &mut SparseGrid<i64>, raw_program: &String) {
     let program_state = parse_program(raw_program);
     let mut computer = Computer::for_program(program_state);
 
