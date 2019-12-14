@@ -18,29 +18,58 @@ pub fn solve() {
         .iter()
         .map(|(g, _)| (&*g.name, g.count))
         .collect();
-    let mut totals_by_chemical: HashMap<_, u32> =
+    let mut remnants_by_chemical: HashMap<_, u64> =
         reactions_list.iter().map(|(g, _)| (&*g.name, 0)).collect();
 
     reaction_output_count.insert("FUEL", 1);
 
-    let total_ore = compute_total_ore_requirements(
+    let mut ore_required = compute_total_ore_requirements(
         "FUEL",
         1,
         &reactions,
         &reaction_output_count,
-        &mut totals_by_chemical,
+        &mut remnants_by_chemical,
     );
 
-    println!("Total ORE required (part 1): {}", total_ore);
+    println!("ORE required for one FUEL (part 1): {}", ore_required);
+
+    let ore_supply = 1_000_000_000_000_u64;
+    // It's overly pessimistic to think we won't get any extra from all the remnants.
+    // It's impossible that we'd end up producing less than supply / requirements_for_one.
+    let mut potential_fuel_min = ore_supply / ore_required as u64;
+    let mut potential_fuel_max = potential_fuel_min * 2;
+    let mut search_interval = potential_fuel_min / 2;
+
+    while search_interval > 0 {
+        let next_to_check = potential_fuel_min + search_interval;
+
+        ore_required = compute_total_ore_requirements(
+            "FUEL",
+            next_to_check,
+            &reactions,
+            &reaction_output_count,
+            &mut remnants_by_chemical,
+        );
+
+        if ore_required > ore_supply {
+            potential_fuel_max = next_to_check - 1;
+        } else {
+            potential_fuel_min = next_to_check;
+        }
+
+        search_interval = (potential_fuel_max - potential_fuel_min) / 2;
+    }
+
+    println!("Total FUEL possible (part 2): {}", potential_fuel_min);
 }
 
 fn compute_total_ore_requirements(
     name: &str,
-    amount: u32,
+    amount: u64,
     reactions: &HashMap<&str, &Vec<Chemical>>,
     reaction_outputs: &HashMap<&str, u32>,
-    remnant_totals: &mut HashMap<&str, u32>,
-) -> u32 {
+    remnant_totals: &mut HashMap<&str, u64>,
+) -> u64 {
     if name == "ORE" {
         return amount;
     }
@@ -50,19 +79,19 @@ fn compute_total_ore_requirements(
         .expect(&format!("Missing reaction for {}", name));
 
     let mut goal = amount;
-    let mut remnant = remnant_totals.get(name).cloned().unwrap_or(0);
+    let mut remnant = remnant_totals.get(name).cloned().unwrap_or(0) as u64;
 
     goal -= std::cmp::min(remnant, amount);
     remnant -= std::cmp::min(remnant, amount);
 
     let mut requirement = 0;
     if goal > 0 {
-        let recipe_output = reaction_outputs.get(&name).unwrap();
+        let recipe_output = reaction_outputs.get(&name).cloned().unwrap() as u64;
         let recipe_count = (goal + recipe_output - 1) / recipe_output;
         for input in reaction.iter() {
             requirement += compute_total_ore_requirements(
                 &input.name,
-                input.count * recipe_count,
+                input.count as u64 * recipe_count,
                 reactions,
                 reaction_outputs,
                 remnant_totals,
