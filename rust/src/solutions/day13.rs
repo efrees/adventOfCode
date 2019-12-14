@@ -1,6 +1,12 @@
 use adventlib::grid::*;
+use crossterm::{cursor, execute, style, terminal, Result};
 use intcode::*;
-use std::io::Write;
+use std::io::{stdout, Write};
+
+use std::thread;
+use std::time::Duration;
+
+static RENDER_GAME_FRAMES: bool = false;
 
 pub fn solve() {
     println!("Day 13");
@@ -9,7 +15,7 @@ pub fn solve() {
 
     let mut screen_state = SparseGrid::<u8>::new();
     let program_state = parse_program(&raw_program);
-    run_arcade_game(&mut screen_state, program_state);
+    run_arcade_game(&mut screen_state, program_state).expect("Game errored");
 
     let block_count = screen_state.iter().filter(|(_k, &v)| v == 2).count();
     screen_state.print(&render_tile);
@@ -18,17 +24,22 @@ pub fn solve() {
     let mut screen_state = SparseGrid::<u8>::new();
     let mut program_state = parse_program(&raw_program);
     program_state[0] = 2;
-    let score = run_arcade_game(&mut screen_state, program_state);
+    let score = run_arcade_game(&mut screen_state, program_state).expect("Game errored");
 
     println!("Final score (part 2): {}", score);
 }
 
-fn run_arcade_game(screen: &mut SparseGrid<u8>, program_state: Vec<i64>) -> i64 {
+fn run_arcade_game(screen: &mut SparseGrid<u8>, program_state: Vec<i64>) -> Result<i64> {
     let mut computer = Computer::for_program(program_state);
     let mut score = 0;
 
     let mut ball_position_before = find_ball(screen);
     let mut next_input = 0;
+
+    if RENDER_GAME_FRAMES {
+        start_game_window()?
+    };
+
     while computer.run_state != RunState::Halted {
         let mut outputs = Vec::new();
         computer.set_input_stream(vec![next_input]);
@@ -45,12 +56,19 @@ fn run_arcade_game(screen: &mut SparseGrid<u8>, program_state: Vec<i64>) -> i64 
             }
         }
 
-        // screen.print(&render_tile);
-        // std::io::stdout().flush();
+        if RENDER_GAME_FRAMES {
+            render_frame(screen, score)?
+        };
+
         next_input = decide_move_direction(screen, ball_position_before);
         ball_position_before = find_ball(screen);
     }
-    return score;
+
+    if RENDER_GAME_FRAMES {
+        close_game_window()?
+    };
+
+    return Ok(score);
 }
 
 fn decide_move_direction(screen: &SparseGrid<u8>, previous_ball_pos: Option<Point>) -> i64 {
@@ -92,4 +110,31 @@ fn render_tile(tile_code: Option<&u8>) -> char {
         4 => '*',
         x => panic!(format!("Unexpected tile code: {}", x)),
     }
+}
+
+fn start_game_window() -> Result<()> {
+    execute!(
+        stdout(),
+        terminal::EnterAlternateScreen,
+        terminal::Clear(terminal::ClearType::All),
+        cursor::SavePosition,
+        cursor::Hide,
+    )
+}
+
+fn close_game_window() -> Result<()> {
+    execute!(stdout(), terminal::LeaveAlternateScreen)
+}
+
+fn render_frame(frame: &SparseGrid<u8>, score: i64) -> Result<()> {
+    thread::sleep(Duration::from_millis(30));
+
+    let rendered_screen = frame.render_to_string(&render_tile);
+    execute!(
+        stdout(),
+        cursor::RestorePosition,
+        style::Print(&rendered_screen),
+        cursor::RestorePosition,
+        style::Print(format!("{}", score)),
+    )
 }

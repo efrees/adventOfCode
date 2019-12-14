@@ -1,37 +1,37 @@
 Day 1
 Total fuel requirements (initial): 3219099
 Total fuel requirements (iterated): 4825810
-Solved in 0.000258600s
+Solved in 0.000342100s
 
 Day 2
 Output (part 1): 3409710
 Input values (part 2): 7912
-Solved in 0.200888200s
+Solved in 0.063151100s
 
 Day 3
 Closest intersection (Manhattan): 2427
 Closest intersection (wire length): 27890
-Solved in 0.046482100s
+Solved in 0.027655100s
 
 Day 4
 Qualified passwords (part 1): 1873
 Qualified passwords (part 2): 1264
-Solved in 0.005193000s
+Solved in 0.003225800s
 
 Day 5
 Diagnostic code (part 1): 15508323
 Diagnostic code (part 2): 9006327
-Solved in 0.000311500s
+Solved in 0.000550800s
 
 Day 6
 Total orbit count: 344238
 Orbit transfers required: 436
-Solved in 0.038971800s
+Solved in 0.017542600s
 
 Day 7
 Max signal (part 2): 70597
 Max signal (part 2): 30872528
-Solved in 0.035274500s
+Solved in 0.014283700s
 
 Day 8
 Checksum (part 1): 1572
@@ -42,17 +42,17 @@ Image (part 2):
 1 1    1  1  1 1    1    
 1 1    1  1  1 1    1    
 1  1   1  1  1 1    1111 
-Solved in 0.000362700s
+Solved in 0.000253600s
 
 Day 9
 BOOST keycode (part 1): 2465411646
 Coordinates (part 2): 0
-Solved in 0.000332000s
+Solved in 0.000217500s
 
 Day 10
 Count from best location (part 1): 267
 200th asteroid destroyed (part 2): 1309
-Solved in 0.021059000s
+Solved in 0.012184600s
 
 Day 11
 Number of cells touched (part 1): 1932
@@ -63,7 +63,38 @@ Letters traced by robot (part 2):
  #    # ## #  # # #  # ##    # #    ###    
  #    #  # #  # # #  #  # #  # #    # #    
  ####  ### #  # #  #  ###  ##  #### #  #   
-Solved in 0.034313700s
 
-Total time:  0.383564000s
+Solved in 0.014785300s
+
+Day 12
+Total energy (part 1): 9139
+Solved in 0.001143100s
+
+Day 13
+|                                   |
+|                 _                 |
+|                                   |
+|                                   |
+|               *                   |
+|                                   |
+| ##  # #    # ####   ##  ### ####  |
+|    # ### #  ### ## ##### ##### #  |
+| ## ########## # ##  # ########### |
+| ##### ##### ############ ##  #    |
+| #  #  ## ###### # ##### ## ###### |
+| # #### #    #####   #### ###   ## |
+|   ### ### ### ### # # # #### # ## |
+|    # ###  ######  #  ############ |
+| #   ## #### ###### ## ####### ##  |
+| ## # #####    # ## # ###  ##### # |
+| ##  # #   ###### ###### ## # # ## |
+|   ### ######  ###########  ##   # |
+|                                   |
+|||||||||||||||||||||||||||||||||||||
+
+Number of block tiles (part 1): 270
+Final score (part 2): 12535
+Solved in 0.110844800s
+
+Total time:  0.266294000s
 

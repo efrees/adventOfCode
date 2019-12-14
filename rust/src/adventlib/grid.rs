@@ -177,15 +177,22 @@ impl<TContents> SparseGrid<TContents> {
         self.grid_contents.keys().len()
     }
 
-    pub fn print(&self, cell_printer: &dyn (Fn(Option<&TContents>) -> char)) {
+    pub fn print(&self, cell_renderer: &dyn (Fn(Option<&TContents>) -> char)) {
+        println!("{}", self.render_to_string(cell_renderer));
+    }
+
+    pub fn render_to_string(&self, cell_renderer: &dyn (Fn(Option<&TContents>) -> char)) -> String {
+        let number_of_chars = (self.max_y - self.min_y) * (self.max_x - self.min_x + 1);
+        let mut output = String::with_capacity(number_of_chars as usize);
         // flipping the y-direction because the problems usually put y==0 at the top
         for i in (self.min_y..=self.max_y).rev() {
             for j in self.min_x..=self.max_x {
                 let contents = self.grid_contents.get(&Point::new(j, i));
-                print!("{}", cell_printer(contents));
+                output.push_str(&format!("{}", cell_renderer(contents)));
             }
-            println!("");
+            output.push_str("\n");
         }
+        return output;
     }
 
     pub fn iter(&self) -> Iter<Point, TContents> {
