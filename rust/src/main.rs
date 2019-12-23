@@ -1,6 +1,7 @@
 extern crate adventlib;
 extern crate chrono;
 extern crate crossterm;
+extern crate num_integer;
 extern crate regex;
 #[macro_use]
 extern crate lazy_static;
