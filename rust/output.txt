@@ -1,74 +1,75 @@
 Day 1
 Total fuel requirements (initial): 3219099
 Total fuel requirements (iterated): 4825810
-Solved in 0.000215400s
+Solved in 0.000271200s
 
 Day 2
 Output (part 1): 3409710
 Input values (part 2): 7912
-Solved in 0.124052400s
+Solved in 0.081790300s
 
 Day 3
 Closest intersection (Manhattan): 2427
 Closest intersection (wire length): 27890
-Solved in 0.044346400s
+Solved in 0.026572000s
 
 Day 4
 Qualified passwords (part 1): 1873
 Qualified passwords (part 2): 1264
-Solved in 0.004997300s
+Solved in 0.003264800s
 
 Day 5
 Diagnostic code (part 1): 15508323
 Diagnostic code (part 2): 9006327
-Solved in 0.000485900s
+Solved in 0.000442700s
 
 Day 6
 Total orbit count: 344238
 Orbit transfers required: 436
-Solved in 0.030821400s
+Solved in 0.023699000s
 
 Day 7
 Max signal (part 2): 70597
 Max signal (part 2): 30872528
-Solved in 0.017667300s
+Solved in 0.018544100s
 
 Day 8
 Checksum (part 1): 1572
 Image (part 2):
-1  1 1   11  1 1111 1111
-1 1  1   11  1 1    1
-11    1 1 1111 111  111
-1 1    1  1  1 1    1
-1 1    1  1  1 1    1
-1  1   1  1  1 1    1111
-Solved in 0.000327800s
+1  1 1   11  1 1111 1111 
+1 1  1   11  1 1    1    
+11    1 1 1111 111  111  
+1 1    1  1  1 1    1    
+1 1    1  1  1 1    1    
+1  1   1  1  1 1    1111 
+Solved in 0.000362600s
 
 Day 9
 BOOST keycode (part 1): 2465411646
 Coordinates (part 2): 0
-Solved in 0.000265900s
+Solved in 0.000461400s
 
 Day 10
 Count from best location (part 1): 267
 200th asteroid destroyed (part 2): 1309
-Solved in 0.011474900s
+Solved in 0.011818500s
 
 Day 11
 Number of cells touched (part 1): 1932
 Letters traced by robot (part 2):
- ####  ##  #  # #  #  ##    ## #### ###
- #    #  # #  # # #  #  #    # #    #  #
- ###  #    #### ##   #       # ###  #  #
- #    # ## #  # # #  # ##    # #    ###
- #    #  # #  # # #  #  # #  # #    # #
- ####  ### #  # #  #  ###  ##  #### #  #
+ ####  ##  #  # #  #  ##    ## #### ###    
+ #    #  # #  # # #  #  #    # #    #  #   
+ ###  #    #### ##   #       # ###  #  #   
+ #    # ## #  # # #  # ##    # #    ###    
+ #    #  # #  # # #  #  # #  # #    # #    
+ ####  ### #  # #  #  ###  ##  #### #  #   
 
-Solved in 0.016464500s
+Solved in 0.014852200s
 
 Day 12
 Total energy (part 1): 9139
-Solved in 0.000897500s
+Steps until repeat (part 2): 420788524631496
+Solved in 0.766767000s
 
 Day 13
 |                                   |
@@ -90,4 +91,16 @@ Day 13
 | ##  # #   ###### ###### ## # # ## |
 |   ### ######  ###########  ##   # |
 |                                   |
+|||||||||||||||||||||||||||||||||||||
+
+Number of block tiles (part 1): 270
+Final score (part 2): 12535
+Solved in 0.133409000s
+
+Day 14
+ORE required for one FUEL (part 1): 751038
+Total FUEL possible (part 2): 2074843
+Solved in 0.006730000s
+
+Total time:  1.089109600s
 

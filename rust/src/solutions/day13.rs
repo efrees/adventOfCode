@@ -30,6 +30,10 @@ pub fn solve() {
         let score = run_arcade_game(&mut screen_state, program_state).expect("Game errored");
 
         println!("Final score (part 2): {}", score);
+
+        if !ENABLE_MANUAL_CONTROL {
+            break;
+        }
     }
 }
 
