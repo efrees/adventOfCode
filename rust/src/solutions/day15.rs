@@ -104,28 +104,7 @@ fn find_shortest_path_to_target(grid_state: &SparseGrid<u8>) -> i32 {
         .find_location_of(&MAP_OXYGEN)
         .expect("Must have explored oxygen system.");
 
-    let mut search_nodes = vec![(search_start, 0)];
-    let mut already_reached = HashSet::new();
-
-    while search_nodes.len() > 0 {
-        let (search_loc, search_depth) = search_nodes.remove(0);
-        already_reached.insert(search_loc);
-
-        if search_loc == search_target {
-            return search_depth;
-        }
-
-        search_nodes.extend(
-            search_loc
-                .neighbors4()
-                .iter()
-                .filter(|&n| is_navigable(grid_state, n))
-                .filter(|&n| (!already_reached.contains(n)))
-                .map(|&n| (n, search_depth + 1)),
-        );
-    }
-
-    return -1;
+    return bfs_until_condition(grid_state, search_start, &|&p| p == search_target);
 }
 
 fn find_max_distance_from_oxygen(grid_state: &SparseGrid<u8>) -> i32 {
@@ -133,6 +112,14 @@ fn find_max_distance_from_oxygen(grid_state: &SparseGrid<u8>) -> i32 {
         .find_location_of(&MAP_OXYGEN)
         .expect("Must have explored oxygen system.");
 
+    return bfs_until_condition(grid_state, search_start, &|_| false);
+}
+
+fn bfs_until_condition(
+    grid_state: &SparseGrid<u8>,
+    search_start: Point,
+    stop_condition: &dyn (Fn(&Point) -> bool),
+) -> i32 {
     let mut search_nodes = vec![(search_start, 0)];
     let mut already_reached = HashSet::new();
 
@@ -143,6 +130,10 @@ fn find_max_distance_from_oxygen(grid_state: &SparseGrid<u8>) -> i32 {
 
         already_reached.insert(search_loc);
         last_search_depth = search_depth;
+
+        if stop_condition(&search_loc) {
+            break;
+        }
 
         search_nodes.extend(
             search_loc
