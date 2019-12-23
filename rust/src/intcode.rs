@@ -49,6 +49,10 @@ impl Computer<i64> {
         self.input_stream = input_stream;
     }
 
+    pub fn add_input(&mut self, additional_input: i64) {
+        self.input_stream.push(additional_input);
+    }
+
     pub fn set_noun_and_verb(&mut self, noun: i64, verb: i64) {
         self.program_state[1] = noun;
         self.program_state[2] = verb;

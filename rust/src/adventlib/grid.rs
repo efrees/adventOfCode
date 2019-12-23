@@ -184,8 +184,8 @@ impl<TContents> SparseGrid<TContents> {
     pub fn render_to_string(&self, cell_renderer: &dyn (Fn(Option<&TContents>) -> char)) -> String {
         let number_of_chars = (self.max_y - self.min_y) * (self.max_x - self.min_x + 1);
         let mut output = String::with_capacity(number_of_chars as usize);
-        // flipping the y-direction because the problems usually put y==0 at the top
-        for i in (self.min_y..=self.max_y).rev() {
+
+        for i in (self.min_y..=self.max_y) {
             for j in self.min_x..=self.max_x {
                 let contents = self.grid_contents.get(&Point::new(j, i));
                 output.push_str(&format!("{}", cell_renderer(contents)));
