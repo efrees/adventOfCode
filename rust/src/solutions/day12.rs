@@ -1,4 +1,5 @@
 use adventlib::grid::*;
+use num_integer::*;
 use regex::Regex;
 use std::collections::*;
 
@@ -42,49 +43,51 @@ pub fn solve() {
     let total_energy = get_total_energy(&moons, &velocities);
     println!("Total energy (part 1): {}", total_energy);
 
-    for i in 1..100000000 {
-        let x = 170472058848_u64 * i - 81067670;
-        if x % 7067924 == 0 {
-            println!("{}: {}", i, x + 81067670);
-        }
-    }
+    let moons: Vec<_> = raw_moons.iter().map(|m| parse_moon(m)).collect();
+    let velocities: Vec<_> = vec![0; moons.len()]
+        .iter()
+        .map(|_| Point3d::new(0, 0, 0))
+        .collect();
+
     let x_loop = simulate_dimension_until_loop(
         moons.iter().map(|&m| m.x).collect(),
         velocities.iter().map(|&v| v.x).collect(),
     );
-    println!("x loop: {:#?}", x_loop);
     let y_loop = simulate_dimension_until_loop(
         moons.iter().map(|&m| m.y).collect(),
         velocities.iter().map(|&v| v.y).collect(),
     );
-    println!("y loop: {:#?}", y_loop);
     let z_loop = simulate_dimension_until_loop(
         moons.iter().map(|&m| m.z).collect(),
         velocities.iter().map(|&v| v.z).collect(),
     );
-    println!("z loop: {:#?}", z_loop);
+
+    // Haven't had to handle the case of shifted loops.
+    assert_eq!(x_loop.0 + y_loop.0 + z_loop.0, 0);
     // x loop: (
-    //     1,
+    //     0,
     //     268296,
     // )
     // y loop: (
-    //     1,
-    //     15249312,
+    //     0,
+    //     231614,
     // )
     // z loop: (
-    //     81067670,
-    //     7067924,
+    //     0,
+    //     108344,
     // )
+    let system_loop = x_loop.1.lcm(&y_loop.1).lcm(&z_loop.1);
+    println!("Steps until repeat (part 2): {}", system_loop);
 }
 
 fn simulate_dimension_until_loop(mut locations: Vec<i64>, mut velocities: Vec<i64>) -> (i64, i64) {
     // Same simulation, but independent for x, y, and z
     // Hoping to find lcm of separate loops
 
-    // x
     let mut seen_states = HashMap::new();
     let mut time_steps = 0_i64;
-    let mut last_state = Point::new(0, 0);
+
+    let mut last_state = represent_state(&locations, &velocities);
     while !seen_states.contains_key(&last_state) {
         seen_states.insert(last_state, time_steps);
         time_steps += 1;
@@ -106,19 +109,7 @@ fn simulate_dimension_until_loop(mut locations: Vec<i64>, mut velocities: Vec<i6
             .map(|(m, v)| m + v)
             .collect();
 
-        // Assuming ~4 points and <= two-digit magnitudes
-        let mut state_l = 0;
-        for loc in locations.iter() {
-            state_l *= 100;
-            state_l += loc;
-        }
-        let mut state_v = 0;
-        for vel in velocities.iter() {
-            state_v *= 100;
-            state_v += vel;
-        }
-
-        last_state = Point::new(state_l, state_v);
+        last_state = represent_state(&locations, &velocities);
     }
 
     let loop_start = seen_states.get(&last_state).unwrap();
@@ -161,4 +152,19 @@ fn normalized_compare(a: i64, b: i64) -> i64 {
     } else {
         0
     }
+}
+
+fn represent_state(locations: &Vec<i64>, velocities: &Vec<i64>) -> String {
+    // Assuming 4 points
+    return format!(
+        "{},{},{},{},{},{},{},{}",
+        locations[0],
+        locations[1],
+        locations[2],
+        locations[3],
+        velocities[0],
+        velocities[1],
+        velocities[2],
+        velocities[3]
+    );
 }
