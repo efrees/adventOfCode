@@ -49,7 +49,7 @@ impl Point {
     pub fn vec_add(&self, other: &Point) -> Point {
         Point {
             x: self.x + other.x,
-            y: self.y - other.y,
+            y: self.y + other.y,
         }
     }
 }
@@ -77,8 +77,8 @@ impl Point3d {
     pub fn vec_add(&self, other: &Point3d) -> Point3d {
         Point3d {
             x: self.x + other.x,
-            y: self.y - other.y,
-            z: self.z - other.z,
+            y: self.y + other.y,
+            z: self.z + other.z,
         }
     }
 }
