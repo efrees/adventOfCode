@@ -1,26 +1,26 @@
 use adventlib::grid::*;
 use intcode::*;
+use std::collections::HashSet;
 
 pub fn solve() {
-    println!("Day 11");
+    println!("Day 15");
 
     let raw_program = adventlib::read_input_raw("day15input.txt");
 
     let mut grid_state = SparseGrid::<u8>::new();
     explore_map(&mut grid_state, &raw_program);
 
+    grid_state.print(&render_grid_cell);
+
     let shortest_path = find_shortest_path_to_target(&grid_state);
 
-    let cell_printer = |c: Option<&u8>| match c {
-        Some(&x) if x == MAP_OPEN => '.',
-        Some(&x) if x == MAP_WALL => '#',
-        Some(&x) if x == MAP_START => '^',
-        Some(&x) if x == MAP_OXYGEN => '$',
-        Some(_) | None => ' ',
-    };
-    grid_state.print(&cell_printer);
-
     println!("Fewest moves (part 1): {}", shortest_path);
+
+    let max_distance_from_oxygen = find_max_distance_from_oxygen(&grid_state);
+    println!(
+        "Minutes to fill with oxygen (part 2): {}",
+        max_distance_from_oxygen
+    );
 }
 
 static MAP_WALL: u8 = 0;
@@ -37,7 +37,7 @@ fn explore_map(grid_state: &mut SparseGrid<u8>, raw_program: &String) {
     let program_state = parse_program(raw_program);
     let mut computer = Computer::for_program(program_state);
 
-    let cur_position = Point::new(0, 0);
+    let cur_position = Point::origin();
 
     grid_state.insert(cur_position, MAP_START);
     explore_map_rec(grid_state, &mut computer, &cur_position);
@@ -99,5 +99,77 @@ fn get_move_command(direction: Direction) -> i64 {
 }
 
 fn find_shortest_path_to_target(grid_state: &SparseGrid<u8>) -> i32 {
-    0
+    let search_start = Point::origin();
+    let search_target = grid_state
+        .find_location_of(&MAP_OXYGEN)
+        .expect("Must have explored oxygen system.");
+
+    let mut search_nodes = vec![(search_start, 0)];
+    let mut already_reached = HashSet::new();
+
+    while search_nodes.len() > 0 {
+        let (search_loc, search_depth) = search_nodes.remove(0);
+        already_reached.insert(search_loc);
+
+        if search_loc == search_target {
+            return search_depth;
+        }
+
+        search_nodes.extend(
+            search_loc
+                .neighbors4()
+                .iter()
+                .filter(|&n| is_navigable(grid_state, n))
+                .filter(|&n| (!already_reached.contains(n)))
+                .map(|&n| (n, search_depth + 1)),
+        );
+    }
+
+    return -1;
+}
+
+fn find_max_distance_from_oxygen(grid_state: &SparseGrid<u8>) -> i32 {
+    let search_start = grid_state
+        .find_location_of(&MAP_OXYGEN)
+        .expect("Must have explored oxygen system.");
+
+    let mut search_nodes = vec![(search_start, 0)];
+    let mut already_reached = HashSet::new();
+
+    let mut last_search_depth = -1;
+
+    while search_nodes.len() > 0 {
+        let (search_loc, search_depth) = search_nodes.remove(0);
+
+        already_reached.insert(search_loc);
+        last_search_depth = search_depth;
+
+        search_nodes.extend(
+            search_loc
+                .neighbors4()
+                .iter()
+                .filter(|&n| is_navigable(grid_state, n))
+                .filter(|&n| (!already_reached.contains(n)))
+                .map(|&n| (n, search_depth + 1)),
+        );
+    }
+
+    return last_search_depth;
+}
+
+fn is_navigable(grid_state: &SparseGrid<u8>, location: &Point) -> bool {
+    grid_state
+        .get(location)
+        .map(|&cell| cell != MAP_WALL)
+        .unwrap_or(false)
+}
+
+fn render_grid_cell(cell: Option<&u8>) -> char {
+    match cell {
+        Some(&x) if x == MAP_OPEN => '.',
+        Some(&x) if x == MAP_WALL => '#',
+        Some(&x) if x == MAP_START => '^',
+        Some(&x) if x == MAP_OXYGEN => '$',
+        Some(_) | None => ' ',
+    }
 }

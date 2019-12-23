@@ -13,6 +13,10 @@ impl Point {
         Point { x: x, y: y }
     }
 
+    pub fn origin() -> Point {
+        Point::new(0, 0)
+    }
+
     pub fn neighbors4(&self) -> Vec<Point> {
         vec![
             Point::new(self.x - 1, self.y),
@@ -149,7 +153,7 @@ pub struct SparseGrid<TContents> {
     max_y: i64,
 }
 
-impl<TContents> SparseGrid<TContents> {
+impl<TContents: PartialEq> SparseGrid<TContents> {
     pub fn new() -> SparseGrid<TContents> {
         SparseGrid {
             grid_contents: HashMap::<Point, TContents>::new(),
@@ -177,6 +181,14 @@ impl<TContents> SparseGrid<TContents> {
         self.grid_contents.keys().len()
     }
 
+    pub fn find_location_of(&self, value: &TContents) -> Option<Point> {
+        self.grid_contents
+            .iter()
+            .filter(|(_, v)| **v == *value)
+            .map(|(&k, _)| k)
+            .next()
+    }
+
     pub fn print(&self, cell_renderer: &dyn (Fn(Option<&TContents>) -> char)) {
         println!("{}", self.render_to_string(cell_renderer));
     }
@@ -185,7 +197,7 @@ impl<TContents> SparseGrid<TContents> {
         let number_of_chars = (self.max_y - self.min_y) * (self.max_x - self.min_x + 1);
         let mut output = String::with_capacity(number_of_chars as usize);
 
-        for i in (self.min_y..=self.max_y) {
+        for i in self.min_y..=self.max_y {
             for j in self.min_x..=self.max_x {
                 let contents = self.grid_contents.get(&Point::new(j, i));
                 output.push_str(&format!("{}", cell_renderer(contents)));
