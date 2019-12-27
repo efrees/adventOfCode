@@ -40,6 +40,11 @@ impl Computer<i64> {
         }
     }
 
+    pub fn for_raw_program(raw_program: &String) -> Computer<i64> {
+        let program = parse_program(raw_program);
+        Computer::for_program(program)
+    }
+
     pub fn load_program(&mut self, program_state: Vec<i64>) {
         self.program_state = program_state;
         self.instr_ptr = 0;
