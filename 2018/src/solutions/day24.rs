@@ -19,80 +19,19 @@ pub fn solve() {
     while teams[0].groups.iter().any(|g| g.unit_count > 0)
         && teams[1].groups.iter().any(|g| g.unit_count > 0)
     {
-        let mut initiative_order: Vec<_> = teams.iter_mut().flat_map(|t| &mut t.groups).collect();
-        initiative_order.sort_by_key(|g| std::cmp::Reverse(g.initiative));
-
-        let mut selection_order: Vec<_> = initiative_order
-            .iter()
+        let mut initiative_order: Vec<_> = teams
+            .iter_mut()
+            .flat_map(|t| &mut t.groups)
             .filter(|g| g.unit_count > 0)
             .collect();
-        selection_order.sort_by_key(|g| (g.attack_damage * g.unit_count, g.initiative));
-        selection_order.reverse();
+        initiative_order.sort_unstable_by_key(|g| std::cmp::Reverse(g.initiative));
 
-        let mut selected_targets = HashMap::new();
-        for attacking_group in &selection_order {
-            let mut max_potential_damage = 0;
-            let mut seq_num_of_max = 0;
-            let mut eff_pow_of_max = 0;
-            let mut initiative_of_max = 0;
+        let mut selection_order: Vec<_> = initiative_order.iter().collect();
+        selection_order.sort_by_key(|g| std::cmp::Reverse(g.attack_damage * g.unit_count));
 
-            for target_group in &selection_order {
-                if attacking_group.team_name == target_group.team_name
-                    || selected_targets
-                        .values()
-                        .any(|&v| v == target_group.seq_num)
-                {
-                    continue;
-                }
+        let selected_targets = select_targets(selection_order);
 
-                let potential_damage = get_potential_attack_damage(attacking_group, target_group);
-                let eff_pow_of_target = target_group.unit_count * target_group.attack_damage;
-
-                if potential_damage > max_potential_damage
-                    || (potential_damage == max_potential_damage
-                        && eff_pow_of_target > eff_pow_of_max)
-                    || (potential_damage == max_potential_damage
-                        && eff_pow_of_target == eff_pow_of_max
-                        && target_group.initiative > initiative_of_max)
-                {
-                    max_potential_damage = potential_damage;
-                    seq_num_of_max = target_group.seq_num;
-                    eff_pow_of_max = eff_pow_of_target;
-                    initiative_of_max = target_group.initiative;
-                }
-            }
-
-            if max_potential_damage > 0 {
-                selected_targets.insert(attacking_group.seq_num, seq_num_of_max);
-            }
-        }
-
-        for i in 0..initiative_order.len() {
-            let attacking_group = &initiative_order[i];
-            if attacking_group.unit_count == 0
-                || !selected_targets.contains_key(&attacking_group.seq_num)
-            {
-                continue;
-            }
-
-            let target_group_index = initiative_order
-                .iter()
-                .position(|g| Some(&g.seq_num) == selected_targets.get(&attacking_group.seq_num))
-                .unwrap();
-
-            let potential_damage =
-                get_potential_attack_damage(attacking_group, &initiative_order[target_group_index]);
-
-            let units_destroyed =
-                potential_damage / initiative_order[target_group_index].hit_points;
-
-            initiative_order[target_group_index].unit_count =
-                if units_destroyed > initiative_order[target_group_index].unit_count {
-                    0
-                } else {
-                    initiative_order[target_group_index].unit_count - units_destroyed
-                }
-        }
+        do_attacks(&mut initiative_order, selected_targets);
     }
 
     // < 15956
@@ -102,6 +41,88 @@ pub fn solve() {
         .map(|g| g.unit_count)
         .sum();
     println!("Winning unit count: {}", winning_unit_count);
+}
+
+fn select_targets(selection_order: Vec<&&mut FightGroup>) -> HashMap<usize, usize> {
+    let mut selected_targets = HashMap::new();
+    for attacking_group in &selection_order {
+        let mut seq_num_of_max = 0;
+        let mut max_priority_values = (0, 0, 0);
+
+        for target_group in &selection_order {
+            if attacking_group.team_name == target_group.team_name
+                || selected_targets
+                    .values()
+                    .any(|&v| v == target_group.seq_num)
+            {
+                continue;
+            }
+
+            let potential_damage = get_potential_attack_damage(attacking_group, target_group);
+            let target_effective_power = target_group.attack_damage * target_group.unit_count;
+
+            let priority_values = (
+                potential_damage,
+                target_effective_power,
+                target_group.initiative,
+            );
+            // println!(
+            //     "{} {} would deal defending group {} {} damage",
+            //     attacking_group.team_name,
+            //     attacking_group.seq_num,
+            //     target_group.seq_num,
+            //     potential_damage
+            // );
+            if priority_values > max_priority_values {
+                seq_num_of_max = target_group.seq_num;
+                // max_potential_damage = potential_damage;
+                max_priority_values = priority_values;
+            }
+        }
+
+        if max_priority_values.0 > 0 {
+            selected_targets.insert(attacking_group.seq_num, seq_num_of_max);
+        }
+    }
+    selected_targets
+}
+
+fn do_attacks(
+    initiative_order: &mut Vec<&mut FightGroup>,
+    selected_targets: HashMap<usize, usize>,
+) {
+    for i in 0..initiative_order.len() {
+        let attacking_group = &initiative_order[i];
+        if attacking_group.unit_count == 0
+            || !selected_targets.contains_key(&attacking_group.seq_num)
+        {
+            continue;
+        }
+
+        let target_group_index = initiative_order
+            .iter()
+            .position(|g| Some(&g.seq_num) == selected_targets.get(&attacking_group.seq_num))
+            .unwrap();
+
+        let potential_damage =
+            get_potential_attack_damage(attacking_group, &initiative_order[target_group_index]);
+
+        let units_destroyed = potential_damage / initiative_order[target_group_index].hit_points;
+
+        // println!(
+        //     "{} group {} attacks {}, killing {}",
+        //     attacking_group.team_name,
+        //     attacking_group.seq_num,
+        //     initiative_order[target_group_index].seq_num,
+        //     units_destroyed
+        // );
+        initiative_order[target_group_index].unit_count =
+            if units_destroyed > initiative_order[target_group_index].unit_count {
+                0
+            } else {
+                initiative_order[target_group_index].unit_count - units_destroyed
+            }
+    }
 }
 
 fn sequence_groups(teams: &mut Vec<Team>) {
@@ -117,23 +138,25 @@ fn sequence_groups(teams: &mut Vec<Team>) {
 }
 
 fn get_potential_attack_damage(attacking_group: &FightGroup, target_group: &FightGroup) -> u32 {
-    let mut potential_damage = if target_group
-        .immunities
-        .iter()
-        .any(|i| *i == attacking_group.attack_type)
-    {
+    return if is_immune_to_attack(target_group, &attacking_group.attack_type) {
         0
+    } else if is_weak_to_attack(target_group, &attacking_group.attack_type) {
+        effective_power(attacking_group) * 2
     } else {
-        attacking_group.attack_damage * attacking_group.unit_count
+        effective_power(attacking_group)
     };
-    if target_group
-        .weaknesses
-        .iter()
-        .any(|w| *w == attacking_group.attack_type)
-    {
-        potential_damage *= 2;
-    }
-    potential_damage
+}
+
+fn is_immune_to_attack(target_group: &FightGroup, attack_type: &str) -> bool {
+    target_group.immunities.iter().any(|i| *i == attack_type)
+}
+
+fn is_weak_to_attack(target_group: &FightGroup, attack_type: &str) -> bool {
+    target_group.weaknesses.iter().any(|w| w == attack_type)
+}
+
+fn effective_power(group: &FightGroup) -> u32 {
+    group.attack_damage * group.unit_count
 }
 
 fn parse_team(team_raw: &str) -> Team {
@@ -145,7 +168,7 @@ fn parse_team(team_raw: &str) -> Team {
         .map(|s| parse_group(s, &team_name))
         .collect();
 
-    Team { team_name, groups }
+    Team { groups }
 }
 
 fn parse_group(group_raw: &str, team_name: &str) -> FightGroup {
@@ -194,7 +217,6 @@ fn get_captures_as_strings(pattern: Regex, line: &str) -> Vec<String> {
 }
 
 struct Team {
-    team_name: String,
     groups: Vec<FightGroup>,
 }
 
