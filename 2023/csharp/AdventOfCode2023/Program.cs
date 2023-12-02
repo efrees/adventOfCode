@@ -10,7 +10,8 @@ public static class Program
 {
     private static readonly IReadOnlyList<ISolver> Solvers = new ISolver[]
     {
-        new Day01Solver()
+        new Day01Solver(),
+        new Day02Solver()
     };
 
     public static void Main()
