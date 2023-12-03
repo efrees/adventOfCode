@@ -40,9 +40,12 @@ public static class Program
     private static void ReportAllAverages()
     {
         const int repetitions = 5;
-        Console.WriteLine($"Day\tAverage Runtime in Seconds ({repetitions} attempts)");
+        Console.WriteLine("Beginning actual runs for average");
 
         var results = Solvers.Select((solver, i) => (day: i + 1, time: GetAverageTime(solver.Solve, repetitions))).ToList();
+
+        Console.WriteLine($"------\nAverage Runtime in Seconds ({repetitions} attempts)");
+        Console.WriteLine("Day\tC#");
         foreach (var (day, time) in results)
         {
             Console.WriteLine($"{day}\t{time / 1000:F9}");

@@ -35,8 +35,10 @@ To update chart
 ```
 dotnet run --project .\AdventOfCode2023\AdventOfCode2023.csproj --configuration=AverageRuntimes
 ```
-2. Copy the last lines into Excel file
+2. Copy the last lines (after the "------") into the Excel file
 3. Save chart to image as "RuntimesChart.png"
+
+I know! It's a manual process. That bugs me too. I'm open to suggestions, but I do want to keep it flexible for multiple languages and edge cases.
 
 ## Environment
 * Visual Studio 2022
