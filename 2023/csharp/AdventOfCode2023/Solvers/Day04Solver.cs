@@ -24,10 +24,7 @@ internal class Day04Solver : ISolver
 
         foreach (var line in lines)
         {
-            var cardHalves = line.Substring(line.IndexOf(':') + 1).Split('|');
-
-            var allWinningNumbers = cardHalves[0].SplitRemovingEmpty(' ');
-            var myWinningNumbers = cardHalves[1].SplitRemovingEmpty(' ').Intersect(allWinningNumbers).ToList();
+            var myWinningNumbers = GetWinningNumbersFromCard(line);
 
             sumOfWinningCardScores += myWinningNumbers.Any()
                 ? 1 << (myWinningNumbers.Count - 1)
@@ -39,6 +36,27 @@ internal class Day04Solver : ISolver
 
     private static long GetPart2Answer(List<string> lines)
     {
-        return 0;
+        var cardCounts = new int[lines.Count];
+        for (var card = 0; card < lines.Count; card++)
+        {
+            cardCounts[card]++;
+            var myWinningNumbers = GetWinningNumbersFromCard(lines[card]);
+
+            for (var offset = 1; offset <= myWinningNumbers.Count; offset++)
+            {
+                cardCounts[card + offset] += cardCounts[card];
+            }
+        }
+
+        return cardCounts.Sum();
+    }
+
+    private static List<string> GetWinningNumbersFromCard(string line)
+    {
+        var cardHalves = line.Substring(line.IndexOf(':') + 1).Split('|');
+
+        var allWinningNumbers = cardHalves[0].SplitRemovingEmpty(' ');
+        var myWinningNumbers = cardHalves[1].SplitRemovingEmpty(' ').Intersect(allWinningNumbers).ToList();
+        return myWinningNumbers;
     }
 }
