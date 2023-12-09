@@ -21,28 +21,36 @@ internal class Day05Solver : ISolver
 
     private static long GetPart1Answer(List<string> lines)
     {
-        var locationNumbers = new List<long>();
-
         var seeds = ParseSeeds(lines.First());
         var maps = ParseRangeMaps(lines);
 
-        foreach (var seed in seeds)
+        return seeds.Select(seed => MapSeedToLocation(seed, maps))
+            .Min();
+    }
+
+    private static long GetPart2Answer(List<string> lines)
+    {
+        //Naive solution requires processing billions of seeds; I'm mulling dynamic programming but skipping for now.
+        var seeds = ParseSeedsAsRanges(lines.First());
+        var maps = ParseRangeMaps(lines);
+
+        return -1;
+    }
+
+    private static long MapSeedToLocation(long seed, Dictionary<string, RangeMapper> maps)
+    {
+        var mappedType = "seed";
+        var mappedValue = seed;
+
+        while (mappedType != "location")
         {
-            var mappedType = "seed";
-            var mappedValue = seed;
+            var mapper = maps[mappedType];
 
-            while (mappedType != "location")
-            {
-                var mapper = maps[mappedType];
-
-                mappedValue = mapper.Map(mappedValue);
-                mappedType = mapper.ToType;
-            }
-
-            locationNumbers.Add(mappedValue);
+            mappedValue = mapper.Map(mappedValue);
+            mappedType = mapper.ToType;
         }
 
-        return locationNumbers.Min();
+        return mappedValue;
     }
 
     private static IEnumerable<long> ParseSeeds(string seedsLine)
@@ -50,6 +58,22 @@ internal class Day05Solver : ISolver
         return seedsLine.Substring("seeds: ".Length)
             .Split(' ')
             .Select(long.Parse);
+    }
+
+    private static IEnumerable<long> ParseSeedsAsRanges(string seedsLine)
+    {
+        var seedNumbers = seedsLine.Substring("seeds: ".Length)
+            .Split(' ')
+            .Select(long.Parse)
+            .ToList();
+
+        for (var i = 0; i < seedNumbers.Count; i += 2)
+        {
+            for (var seedOffset = 0; seedOffset < seedNumbers[i + 1]; seedOffset++)
+            {
+                yield return seedNumbers[i] + seedOffset;
+            }
+        }
     }
 
     private static Dictionary<string, RangeMapper> ParseRangeMaps(List<string> lines)
@@ -81,11 +105,6 @@ internal class Day05Solver : ISolver
         }
 
         return maps;
-    }
-
-    private static long GetPart2Answer(List<string> lines)
-    {
-        return 0;
     }
 
     private class RangeMapper(string fromType, string toType)
