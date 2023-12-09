@@ -10,6 +10,11 @@ public static class CollectionExtensions
         return !source.Any();
     }
 
+    public static int MultiplyAll(this IEnumerable<int> source)
+    {
+        return source.Aggregate((product, next) => product * next);
+    }
+
     public static IEnumerable<(TFirst, TSecond)> CrossProduct<TFirst, TSecond>(this ICollection<TFirst> first,
         ICollection<TSecond> second)
     {
