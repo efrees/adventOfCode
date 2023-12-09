@@ -34,7 +34,16 @@ internal class Day07Solver : ISolver
 
     private static long GetPart2Answer(List<string> lines)
     {
-        return -1;
+        var hands = lines
+            .Select(l => l.Split(' '))
+            .Select(rawPair => (cards: rawPair[0], bid: int.Parse(rawPair[1])))
+            .OrderBy(GetHandTypeWithJokers)
+            .ThenBy(GetCardValuesAsBase13WithJokers)
+            .ToList();
+
+        return hands
+            .Select((hand, index) => hand.bid * (index + 1))
+            .Sum();
     }
 
     private static int GetHandType((string cards, int bid) hand)
@@ -45,6 +54,27 @@ internal class Day07Solver : ISolver
             .OrderDescending()
             .ToArray();
 
+        return GetHandTypeFromCounts(cardCounts);
+    }
+
+    private static int GetHandTypeWithJokers((string cards, int bid) hand)
+    {
+        var cardGroups = hand.cards.ToLookup(c => c);
+        var jokerCount = cardGroups['J'].Count();
+        var cardCounts = cardGroups
+            .Where(group => group.Key != 'J')
+            .Select(group => group.Count())
+            .OrderDescending()
+            .DefaultIfEmpty(0)
+            .ToList();
+
+        cardCounts[0] += jokerCount;
+
+        return GetHandTypeFromCounts(cardCounts);
+    }
+
+    private static int GetHandTypeFromCounts(IList<int> cardCounts)
+    {
         // types: 5, 4, (3,2), (3), (2,2), 2, 1
         var biggestCount = cardCounts.First();
         if (biggestCount >= 4)
@@ -86,6 +116,31 @@ internal class Day07Solver : ISolver
             'J' => 9,
             'T' => 8,
             _ => card - '0' - 2
+        };
+    }
+
+    private static int GetCardValuesAsBase13WithJokers((string cards, int bid) hand)
+    {
+        var value = 0;
+        foreach (var digit in hand.cards.Select(GetDigitWithJokers))
+        {
+            value *= 13;
+            value += digit;
+        }
+
+        return value;
+    }
+
+    private static int GetDigitWithJokers(char card)
+    {
+        return card switch
+        {
+            'A' => 12,
+            'K' => 11,
+            'Q' => 10,
+            'J' => 0,
+            'T' => 9,
+            _ => card - '0' - 1
         };
     }
 }

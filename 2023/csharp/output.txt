@@ -1,37 +1,43 @@
+C:\Development\exercises\adventOfCode\2023\csharp\AdventOfCode2023\Solvers\Day07Solver.cs(87,42): warning CS8509: The switch expression does not handle all possible values of its input type (it is not exhaustive). For example, the pattern '(3, 0)' is not covered. [C:\Development\exercises\adventOfCode\2023\csharp\AdventOfCode2023\AdventOfCode2023.csproj]
 Day 1
 Output (part 1): 54916
 Output (part 2): 54728
-Solved in 0.043531600s
+Solved in 0.037698300s
 
 Day 2
 Output (part 1): 2512
 Output (part 2): 67335
-Solved in 0.042181600s
+Solved in 0.047827400s
 
 Day 3
 Output (part 1): 527144
 Output (part 2): 81463996
-Solved in 0.054731100s
+Solved in 0.045000300s
 
 Day 4
 Output (part 1): 21105
 Output (part 2): 5329815
-Solved in 0.035053700s
+Solved in 0.026951500s
 
 Day 5
 Output (part 1): 107430936
 Output (part 2): -1
-Solved in 0.008636200s
+Solved in 0.010180300s
 
 Day 6
 Output (part 1): 1195150
 Output (part 2): 42550411
-Solved in 0.014026200s
+Solved in 0.015194800s
+
+Day 7
+Output (part 1): 249638405
+Output (part 2): 249776650
+Solved in 0.038351200s
 
 Day 9
 Output (part 1): 2098530125
 Output (part 2): 1016
-Solved in 0.038359300s
+Solved in 0.041309500s
 
-Total time: 0.238800000s
+Total time: 0.265281300s
 
