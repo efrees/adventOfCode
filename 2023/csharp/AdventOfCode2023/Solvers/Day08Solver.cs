@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -47,31 +48,111 @@ internal class Day08Solver : ISolver
 
         var transitions = ParseTransitions(lines);
 
-        var current = transitions.Keys.Where(k => k.EndsWith('A')).ToList();
-        var stepCount = 0L;
-        var allEndInZ = false;
+        var startNodes = transitions.Keys.Where(k => k.EndsWith('A'));
 
-        while (!allEndInZ)
+        // After running the more general solution, it turns out all the starts loop with a simple period and offset
+        //foreach (var start in startNodes)
+        //{
+        //    var loopingCountSequence = GetCountSequenceToFinishingNodes(start, sequence, transitions).Take(3);
+
+        //    Console.WriteLine(string.Join(", ", loopingCountSequence));
+        //}
+
+        var loopLengths = startNodes.Select(start => GetCountToFirstFinishingNode(start, sequence, transitions));
+
+        return loopLengths
+            .Select(x => (long)x)
+            .Aggregate(LeastCommonMultiple);
+    }
+
+    private static long LeastCommonMultiple(long first, long second)
+    {
+        return first / GreatestCommonDivisor(first, second) * second;
+    }
+
+    private static long GreatestCommonDivisor(long first, long second)
+    {
+        if (first < second)
         {
-            var instruction = sequence[(int)(stepCount % sequence.Length)];
+            (first, second) = (second, first);
+        }
 
-            allEndInZ = true;
-            for (var i = 0; i < current.Count; i++)
-            {
-                current[i] = instruction == 'L'
-                    ? transitions[current[i]].left
-                    : transitions[current[i]].right;
+        while (second != 0)
+        {
+            var remainder = first % second;
+            (first, second) = (second, remainder);
+        }
 
-                if (!current[i].EndsWith('Z'))
-                {
-                    allEndInZ = false;
-                }
-            }
+        return first;
+    }
+
+    private static int GetCountToFirstFinishingNode(string startNode,
+        string instructionSequence,
+        Dictionary<string, (string left, string right)> transitions)
+    {
+        var current = startNode;
+        var stepCount = 0;
+
+        while (!current.EndsWith('Z'))
+        {
+            var instruction = instructionSequence[stepCount % instructionSequence.Length];
+
+            current = instruction == 'L'
+                ? transitions[current].left
+                : transitions[current].right;
 
             stepCount++;
         }
 
         return stepCount;
+    }
+
+    private static IEnumerable<int> GetCountSequenceToFinishingNodes(string startNode,
+        string instructionSequence,
+        Dictionary<string, (string left, string right)> transitions)
+    {
+        var nextNode = startNode;
+        var stepCount = 0;
+        var nextInstructionIndex = 0;
+        var visited = new Dictionary<string, int>();
+        var finishingNodes = new List<(string node, int stepReached)>();
+
+        while (!visited.ContainsKey(nextNode + nextInstructionIndex))
+        {
+            visited[nextNode + nextInstructionIndex] = stepCount;
+            if (nextNode.EndsWith('Z'))
+            {
+                finishingNodes.Add((nextNode, stepCount));
+            }
+
+            var instruction = instructionSequence[stepCount % instructionSequence.Length];
+
+            nextNode = instruction == 'L'
+                ? transitions[nextNode].left
+                : transitions[nextNode].right;
+
+            stepCount++;
+            nextInstructionIndex = stepCount % instructionSequence.Length;
+        }
+
+        // Loop likely isn't looping all the way to the beginning
+        var firstTimeReached = visited[nextNode + nextInstructionIndex];
+        var lengthOfLoop = stepCount - firstTimeReached;
+
+        // I didn't see these conditions guaranteed in the statement, but they simplify the logic a good bit
+        Debug.Assert(finishingNodes.Count == 1);
+        Debug.Assert(lengthOfLoop == finishingNodes[0].stepReached);
+
+        var repeatedFinishers = finishingNodes.Where(n => n.stepReached >= firstTimeReached).ToList();
+
+        for (var i = 0;; i++)
+        {
+            foreach (var (finishingNode, stepReached) in repeatedFinishers)
+            {
+                var nextStepReached = stepReached + lengthOfLoop * i;
+                yield return nextStepReached;
+            }
+        }
     }
 
     private static Dictionary<string, (string left, string right)> ParseTransitions(List<string> lines)
