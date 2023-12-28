@@ -2,47 +2,47 @@ C:\Development\exercises\adventOfCode\2023\csharp\AdventOfCode2023\Solvers\Day07
 Day 1
 Output (part 1): 54916
 Output (part 2): 54728
-Solved in 0.036264500s
+Solved in 0.047587300s
 
 Day 2
 Output (part 1): 2512
 Output (part 2): 67335
-Solved in 0.049024300s
+Solved in 0.047046400s
 
 Day 3
 Output (part 1): 527144
 Output (part 2): 81463996
-Solved in 0.048246400s
+Solved in 0.063817200s
 
 Day 4
 Output (part 1): 21105
 Output (part 2): 5329815
-Solved in 0.040132400s
+Solved in 0.026584600s
 
 Day 5
 Output (part 1): 107430936
-Output (part 2): -1
-Solved in 0.011387900s
+Output (part 2): 23738616
+Solved in 0.021920600s
 
 Day 6
 Output (part 1): 1195150
 Output (part 2): 42550411
-Solved in 0.039681900s
+Solved in 0.013534700s
 
 Day 7
 Output (part 1): 249638405
 Output (part 2): 249776650
-Solved in 0.087664700s
+Solved in 0.036388800s
 
 Day 8
 Output (part 1): 19631
 Output (part 2): 21003205388413
-Solved in 0.074406400s
+Solved in 0.041103500s
 
 Day 9
 Output (part 1): 2098530125
 Output (part 2): 1016
-Solved in 0.067268600s
+Solved in 0.031887300s
 
-Total time: 0.456792500s
+Total time: 0.332413500s
 
