@@ -21,13 +21,42 @@ internal class Day11Solver : ISolver
 
     private static long GetPart1Answer(List<string> lines)
     {
-        var inputHeight = lines.Count;
-        var inputWidth = lines[0].Length;
+        var (rowHasGalaxy, columnHasGalaxy) = MarkRowsAndColumnsWithGalaxy(lines);
 
-        var rowHasGalaxy = new bool[inputHeight];
-        var columnHasGalaxy = new bool[inputWidth];
+        var expandedRowPositions = ComputeExpandedPositionMap(rowHasGalaxy);
+        var expandedColumnPositions = ComputeExpandedPositionMap(columnHasGalaxy);
 
-        for (var row = 0; row < inputHeight; row++)
+        var galaxyPositions = GetExpandedGalaxyPositions(lines, expandedColumnPositions, expandedRowPositions);
+
+        var allDistances = galaxyPositions.CrossProduct(galaxyPositions)
+            .Select(pair => pair.Item1.ManhattanDistance(pair.Item2))
+            .Sum();
+
+        return allDistances / 2;
+    }
+
+    private static long GetPart2Answer(List<string> lines)
+    {
+        var (rowHasGalaxy, columnHasGalaxy) = MarkRowsAndColumnsWithGalaxy(lines);
+
+        var expandedRowPositions = ComputeExpandedPositionMap(rowHasGalaxy, 1_000_000);
+        var expandedColumnPositions = ComputeExpandedPositionMap(columnHasGalaxy, 1_000_000);
+
+        var galaxyPositions = GetExpandedGalaxyPositions(lines, expandedColumnPositions, expandedRowPositions);
+
+        var allDistances = galaxyPositions.CrossProduct(galaxyPositions)
+            .Select(pair => pair.Item1.ManhattanDistance(pair.Item2))
+            .Sum();
+
+        return allDistances / 2;
+    }
+
+    private static (bool[] rowHasGalaxy, bool[] columnHasGalaxy) MarkRowsAndColumnsWithGalaxy(List<string> lines)
+    {
+        var rowHasGalaxy = new bool[lines.Count];
+        var columnHasGalaxy = new bool[lines[0].Length];
+
+        for (var row = 0; row < lines.Count; row++)
         {
             var line = lines[row];
 
@@ -38,37 +67,43 @@ internal class Day11Solver : ISolver
             }
         }
 
-        var galaxyPositions = new HashSet<Point2D>();
+        return (rowHasGalaxy, columnHasGalaxy);
+    }
 
-        var yExpansion = 0;
-        for (var row = 0; row < inputHeight; row++)
+    private static int[] ComputeExpandedPositionMap(bool[] hasGalaxy, int weight = 2)
+    {
+        var impacts = new int[hasGalaxy.Length];
+
+        var countWithoutGalaxy = 0;
+        for (var i = 0; i < impacts.Length; i++)
         {
-            var xExpansion = 0;
-            var line = lines[row];
-            for (var col = 0; col < line.Length; col++)
-            {
-                if (line[col] == '#')
-                {
-                    galaxyPositions.Add((col + xExpansion, row + yExpansion));
-                }
+            impacts[i] = i + countWithoutGalaxy * (weight - 1);
 
-                if (!columnHasGalaxy[col])
-                {
-                    xExpansion++;
-                }
-            }
-
-            if (!rowHasGalaxy[row])
+            if (!hasGalaxy[i])
             {
-                yExpansion++;
+                countWithoutGalaxy++;
             }
         }
 
-        var allDistances = galaxyPositions.CrossProduct(galaxyPositions)
-            .Select(pair => pair.Item1.ManhattanDistance(pair.Item2))
-            .Sum();
+        return impacts;
+    }
 
-        return allDistances / 2;
+    private static HashSet<Point2D> GetExpandedGalaxyPositions(List<string> lines,
+        int[] expandedColumnPositions,
+        int[] expandedRowPositions)
+    {
+        var galaxyPositions = new HashSet<Point2D>();
+
+        for (var row = 0; row < lines.Count; row++)
+        {
+            var line = lines[row];
+            foreach (var col in GetAllGalaxyIndexes(line))
+            {
+                galaxyPositions.Add((expandedColumnPositions[col], expandedRowPositions[row]));
+            }
+        }
+
+        return galaxyPositions;
     }
 
     private static IEnumerable<int> GetAllGalaxyIndexes(string line)
@@ -82,10 +117,5 @@ internal class Day11Solver : ISolver
             nextSearchIndex = nextIndex + 1;
             nextIndex = line.IndexOf('#', nextSearchIndex);
         }
-    }
-
-    private static long GetPart2Answer(List<string> lines)
-    {
-        return -1;
     }
 }
