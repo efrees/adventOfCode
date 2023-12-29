@@ -23,6 +23,26 @@ namespace AdventOfCode2023.Grid
             };
         }
 
+        public Point2D GetNorthNeighbor()
+        {
+            return new(X, Y - 1);
+        }
+
+        public Point2D GetSouthNeighbor()
+        {
+            return new(X, Y + 1);
+        }
+
+        public Point2D GetWestNeighbor()
+        {
+            return new(X - 1, Y);
+        }
+
+        public Point2D GetEastNeighbor()
+        {
+            return new(X + 1, Y);
+        }
+
         public Point2D Add(Point2D other)
         {
             return new(X + other.X, Y + other.Y);

@@ -8,50 +8,169 @@ namespace AdventOfCode2023.Solvers;
 internal class Day10Solver : ISolver
 {
     private const string Name = "Day 10";
-    private const string InputFile = "day10input.txt";
+    private const string InputFile = "day10input_sample2.txt";
 
     public void Solve()
     {
         Console.WriteLine(Name);
         var lines = Input.GetLinesFromFile(InputFile).ToList();
 
-        Console.WriteLine($"Output (part 1): {GetPart1Answer(lines)}");
-        Console.WriteLine($"Output (part 2): {GetPart2Answer(lines)}");
+        var grid = SparseGrid<char>.Parse(lines, c => c);
+        Console.WriteLine($"Output (part 1): {GetPart1Answer(grid)}");
+        Console.WriteLine($"Output (part 2): {GetPart2Answer(grid)}");
     }
 
-    private static long GetPart1Answer(List<string> lines)
+    private static long GetPart1Answer(SparseGrid<char> grid)
     {
-        var grid = SparseGrid<char>.Parse(lines, c => c);
         var start = (Point2D)grid.FindValueLocation('S');
 
-        var frontiers = GetNextAccessiblePoints(start, grid).ToList();
+        var mainPathCoords = FollowMainPath(start, grid);
 
-        var stepCounter = 1;
-        while (frontiers.Any())
+        return mainPathCoords.Count() / 2;
+    }
+
+    private static long GetPart2Answer(SparseGrid<char> grid)
+    {
+        var start = (Point2D)grid.FindValueLocation('S');
+
+        // 1. Follow path, marking left and right, non-path cells
+        // 2. If left or right is ever outside the extremes of the path, that will be "outside"; the other is "inside"
+        // 3. Flood-fill from each "inside" point and count
+        var mainPath = FollowMainPath(start, grid).ToList();
+        var pathPoints = mainPath.ToHashSet();
+        var minX = mainPath.Select(point => point.X).Min();
+        var maxX = mainPath.Select(point => point.X).Max();
+
+        var leftPoints = new HashSet<Point2D>();
+        var rightPoints = new HashSet<Point2D>();
+
+        var rightIsInside = false;
+
+        var previous = start;
+        foreach (var current in mainPath.Skip(1).Concat(new[] { start }))
         {
-            frontiers.ForEach(point => grid.SetCell(point, '#'));
+            var direction = current.Subtract(previous);
+            var left = (direction.Y, -direction.X);
+            var right = (-direction.Y, direction.X);
 
-            frontiers = frontiers.SelectMany(f => GetNextAccessiblePoints(f, grid)).ToList();
-            stepCounter++;
+            var leftPoint = current.Add(left);
+            var rightPoint = current.Add(right);
+
+            if (!pathPoints.Contains(leftPoint))
+            {
+                leftPoints.Add(leftPoint);
+            }
+
+            if (!pathPoints.Contains(rightPoint))
+            {
+                rightPoints.Add(rightPoint);
+            }
+
+            if (leftPoint.X < minX || leftPoint.X > maxX)
+            {
+                rightIsInside = true;
+            }
+
+            previous = current;
         }
 
-        return stepCounter - 1;
+        var insidePoints = rightIsInside
+            ? FloodFillAll(rightPoints, pathPoints)
+            : FloodFillAll(leftPoints, pathPoints);
+
+        // > 392
+        return insidePoints.Count;
     }
 
-    private static long GetPart2Answer(List<string> lines)
+    private static HashSet<Point2D> FloodFillAll(HashSet<Point2D> pointsInSet, HashSet<Point2D> boundaryPoints)
     {
-        return -1;
+        var pointsToSearch = new Queue<Point2D>(pointsInSet);
+        pointsInSet = new();
+
+        while (pointsToSearch.Count > 0)
+        {
+            var point = pointsToSearch.Dequeue();
+
+            if (pointsInSet.Contains(point))
+            {
+                continue;
+            }
+
+            pointsInSet.Add(point);
+            foreach (var neighbor in point.GetNeighbors4().Except(boundaryPoints).Except(pointsInSet))
+            {
+                pointsToSearch.Enqueue(neighbor);
+            }
+        }
+
+        return pointsInSet;
     }
 
-    private static IEnumerable<Point2D> GetNextAccessiblePoints(Point2D current, SparseGrid<char> grid)
+    private static IEnumerable<Point2D> FollowMainPath(Point2D start, SparseGrid<char> grid)
+    {
+        yield return start;
+        var nextPoint = GetPointsAccessibleFromStart(start, grid).First();
+        var previousPoint = start;
+
+        while (nextPoint is not null)
+        {
+            yield return nextPoint;
+
+            var current = nextPoint;
+            nextPoint = GetNextAccessiblePoints(nextPoint, grid)
+                .FirstOrDefault(x => x != start && x != previousPoint);
+            previousPoint = current;
+        }
+    }
+
+    private static IEnumerable<Point2D> GetPointsAccessibleFromStart(Point2D start, SparseGrid<char> grid)
     {
         var directionalChecks = new Func<(long, long), SparseGrid<char>, bool>[]
             { CanEnterFromEast, CanEnterFromSouth, CanEnterFromWest, CanEnterFromNorth };
 
-        return current.GetNeighbors4()
+        return start.GetNeighbors4()
             .Zip(directionalChecks, (point, isAccessible) => (point, isAccessible))
             .Where(item => item.isAccessible(item.point, grid))
             .Select(item => item.point);
+    }
+
+    private static IEnumerable<Point2D> GetNextAccessiblePoints(Point2D current, SparseGrid<char> grid)
+    {
+        var currentShape = grid.GetCell(current);
+
+        var (west, north, east, south)
+            = (current.GetWestNeighbor(), current.GetNorthNeighbor(), current.GetEastNeighbor(), current.GetSouthNeighbor());
+
+        return currentShape switch
+        {
+            '|' => new List<Point2D> { north, south },
+            'L' => new List<Point2D> { north, east },
+            'J' => new List<Point2D> { north, west },
+            '-' => new List<Point2D> { west, east },
+            '7' => new List<Point2D> { west, south },
+            'F' => new List<Point2D> { south, east },
+            _ => throw new ArgumentOutOfRangeException(nameof(current), "We might not be on the main path")
+        };
+
+        //if (CanEnterFromEast(current, grid))
+        //{
+        //    yield return current.GetEastNeighbor();
+        //}
+
+        //if (CanEnterFromNorth(current, grid))
+        //{
+        //    yield return current.GetNorthNeighbor();
+        //}
+
+        //if (CanEnterFromSouth(current, grid))
+        //{
+        //    yield return current.GetSouthNeighbor();
+        //}
+
+        //if (CanEnterFromWest(current, grid))
+        //{
+        //    yield return current.GetWestNeighbor();
+        //}
     }
 
     private static bool CanEnterFromSouth((long x, long y) location, SparseGrid<char> grid)
