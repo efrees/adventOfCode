@@ -8,7 +8,7 @@ namespace AdventOfCode2023.Solvers;
 internal class Day10Solver : ISolver
 {
     private const string Name = "Day 10";
-    private const string InputFile = "day10input_sample2.txt";
+    private const string InputFile = "day10input.txt";
 
     public void Solve()
     {
@@ -66,6 +66,19 @@ internal class Day10Solver : ISolver
                 rightPoints.Add(rightPoint);
             }
 
+            var previousLeft = previous.Add(left);
+            var previousRight = previous.Add(right);
+
+            if (!pathPoints.Contains(previousLeft))
+            {
+                leftPoints.Add(previousLeft);
+            }
+
+            if (!pathPoints.Contains(previousRight))
+            {
+                rightPoints.Add(previousRight);
+            }
+
             if (leftPoint.X < minX || leftPoint.X > maxX)
             {
                 rightIsInside = true;
@@ -78,7 +91,6 @@ internal class Day10Solver : ISolver
             ? FloodFillAll(rightPoints, pathPoints)
             : FloodFillAll(leftPoints, pathPoints);
 
-        // > 392
         return insidePoints.Count;
     }
 
@@ -151,26 +163,6 @@ internal class Day10Solver : ISolver
             'F' => new List<Point2D> { south, east },
             _ => throw new ArgumentOutOfRangeException(nameof(current), "We might not be on the main path")
         };
-
-        //if (CanEnterFromEast(current, grid))
-        //{
-        //    yield return current.GetEastNeighbor();
-        //}
-
-        //if (CanEnterFromNorth(current, grid))
-        //{
-        //    yield return current.GetNorthNeighbor();
-        //}
-
-        //if (CanEnterFromSouth(current, grid))
-        //{
-        //    yield return current.GetSouthNeighbor();
-        //}
-
-        //if (CanEnterFromWest(current, grid))
-        //{
-        //    yield return current.GetWestNeighbor();
-        //}
     }
 
     private static bool CanEnterFromSouth((long x, long y) location, SparseGrid<char> grid)

@@ -5,14 +5,13 @@ Yeah, I never did get around to doing 2022 (yet), but I'm tinkering with these a
 long way, and though most of the big changes won't impact these solutions at all, I may look to force some of the newer
 syntaxes in for the experience.
 
-I may end up solving some in other languages later and as has become the pattern, I'll track which solutions I've done,
-using the chart below.
+In case I end up solving over time and in multiple languages, I'll track which solutions I've done, in the chart below.
 
 ## Progress
 
 |      |1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|
 |------|-|-|-|-|-|-|-|-|-|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|
-|**C#**|🌟|🌟|🌟|🌟|🌟|🌟|🌟|🌟|🌟|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|**C#**|🌟|🌟|🌟|🌟|🌟|🌟|🌟|🌟|🌟|🌟|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 
 ⭐ - First star completed\
 🌟 - Both stars completed
