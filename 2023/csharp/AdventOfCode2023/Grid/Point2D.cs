@@ -11,6 +11,7 @@ namespace AdventOfCode2023.Grid
         public static implicit operator Point2D((long x, long y) coordinates) => new(coordinates.x, coordinates.y);
         public static implicit operator Point2D((int x, int y) coordinates) => new(coordinates.x, coordinates.y);
 
+        /// <returns>Enumerable of neighbors, in West (-x), North (-y), East, South order</returns>
         public IEnumerable<Point2D> GetNeighbors4()
         {
             return new[]

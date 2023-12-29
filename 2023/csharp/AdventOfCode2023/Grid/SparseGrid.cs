@@ -45,6 +45,11 @@ namespace AdventOfCode2023.Grid
             return _data.GetValueOrDefault(coordinates, defaultValue);
         }
 
+        public (long x, long y) FindValueLocation(TCell searchValue)
+        {
+            return _data.FirstOrDefault(p => p.Value.Equals(searchValue)).Key;
+        }
+
         /// <summary>
         /// Only use this if the grid is expected to be fairly small.
         /// </summary>
