@@ -24,6 +24,8 @@ public static class Program
         new Day12Solver(),
         new Day13Solver(),
         new Day14Solver(),
+        new NullSolver("Day 15"),
+        new Day16Solver(),
     };
 
     public static void Main()
