@@ -2,81 +2,86 @@ C:\Development\exercises\adventOfCode\2023\csharp\AdventOfCode2023\Solvers\Day07
 Day 1
 Output (part 1): 54916
 Output (part 2): 54728
-Solved in 0.053467200s
+Solved in 0.095264900s
 
 Day 2
 Output (part 1): 2512
 Output (part 2): 67335
-Solved in 0.066749400s
+Solved in 0.079355700s
 
 Day 3
 Output (part 1): 527144
 Output (part 2): 81463996
-Solved in 0.080987000s
+Solved in 0.068640300s
 
 Day 4
 Output (part 1): 21105
 Output (part 2): 5329815
-Solved in 0.040860100s
+Solved in 0.040128600s
 
 Day 5
 Output (part 1): 107430936
 Output (part 2): 23738616
-Solved in 0.037633600s
+Solved in 0.031395200s
 
 Day 6
 Output (part 1): 1195150
 Output (part 2): 42550411
-Solved in 0.024461700s
+Solved in 0.018619800s
 
 Day 7
 Output (part 1): 249638405
 Output (part 2): 249776650
-Solved in 0.056464700s
+Solved in 0.056841000s
 
 Day 8
 Output (part 1): 19631
 Output (part 2): 21003205388413
-Solved in 0.054946900s
+Solved in 0.054781000s
 
 Day 9
 Output (part 1): 2098530125
 Output (part 2): 1016
-Solved in 0.041722200s
+Solved in 0.055574700s
 
 Day 10
 Output (part 1): 7012
 Output (part 2): 395
-Solved in 0.172885400s
+Solved in 0.178689500s
 
 Day 11
 Output (part 1): 10276166
 Output (part 2): 598693078798
-Solved in 0.080801700s
+Solved in 0.081199600s
 
 Day 12
 Output (part 1): 7169
 Output (part 2): -1
-Solved in 0.120266200s
+Solved in 0.133536000s
 
 Day 13
 Output (part 1): 30802
 Output (part 2): 37876
-Solved in 0.024142100s
+Solved in 0.033023800s
 
 Day 14
 Output (part 1): 108813
 Output (part 2): 104533
-Solved in 0.138767600s
+Solved in 0.158448500s
 
 Day 15
 Not solved yet!
-Solved in 0.000126100s
+Solved in 0.000112000s
 
 Day 16
 Output (part 1): 8249
 Output (part 2): 8444
-Solved in 2.248721000s
+Solved in 1.724156200s
 
-Total time: 3.248933200s
+Day 17
+Output (part 1): 724
+Output (part 2): 877
+Solved in 3.251728000s
+
+Total time: 6.070611000s
 
