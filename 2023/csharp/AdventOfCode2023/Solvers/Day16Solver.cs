@@ -22,12 +22,34 @@ internal class Day16Solver : ISolver
     private static long GetPart1Answer(List<string> lines)
     {
         var grid = SparseGrid<char>.Parse(lines, x => x);
-        var beamsVisited = new HashSet<Beam>();
 
         var start = (0, 0);
         var direction = (1, 0);
+        var startBeam = new Beam(start, direction);
+
+        return CountEnergizedSpaces(grid, startBeam);
+    }
+
+    private static long GetPart2Answer(List<string> lines)
+    {
+        var grid = SparseGrid<char>.Parse(lines, x => x);
+
+        return Enumerable.Range(0, lines.Count)
+            .SelectMany(i => new[]
+            {
+                new Beam((0, i), (1, 0)),
+                new Beam(((int)grid.xMax, i), (-1, 0)),
+                new Beam((i, 0), (0, 1)),
+                new Beam((i, (int)grid.yMax), (0, -1)),
+            }).Select(startBeam => CountEnergizedSpaces(grid, startBeam))
+            .Max();
+    }
+
+    private static int CountEnergizedSpaces(SparseGrid<char> grid, Beam startBeam)
+    {
         var frontier = new Queue<Beam>();
-        frontier.Enqueue(new Beam(start, direction));
+        var beamsVisited = new HashSet<Beam>();
+        frontier.Enqueue(startBeam);
 
         while (frontier.Any())
         {
@@ -85,13 +107,7 @@ internal class Day16Solver : ISolver
         }
 
         var energizedSpaces = beamsVisited.Select(b => b.Position).ToHashSet();
-
         return energizedSpaces.Count;
-    }
-
-    private static long GetPart2Answer(List<string> lines)
-    {
-        return -1;
     }
 
     private static Point2D RightTurn(Point2D direction)
