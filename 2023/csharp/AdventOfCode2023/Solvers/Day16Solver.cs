@@ -68,16 +68,16 @@ internal class Day16Solver : ISolver
             {
                 if (component == '\\')
                 {
-                    frontier.Enqueue(beam.RightTurn());
+                    frontier.Enqueue(beam.TurnRight());
                 }
                 else if (component == '/')
                 {
-                    frontier.Enqueue(beam.LeftTurn());
+                    frontier.Enqueue(beam.TurnLeft());
                 }
                 else if (component == '|')
                 {
-                    frontier.Enqueue(beam.RightTurn());
-                    frontier.Enqueue(beam.LeftTurn());
+                    frontier.Enqueue(beam.TurnRight());
+                    frontier.Enqueue(beam.TurnLeft());
                 }
                 else
                 {
@@ -88,16 +88,16 @@ internal class Day16Solver : ISolver
             {
                 if (component == '\\')
                 {
-                    frontier.Enqueue(beam.LeftTurn());
+                    frontier.Enqueue(beam.TurnLeft());
                 }
                 else if (component == '/')
                 {
-                    frontier.Enqueue(beam.RightTurn());
+                    frontier.Enqueue(beam.TurnRight());
                 }
                 else if (component == '-')
                 {
-                    frontier.Enqueue(beam.RightTurn());
-                    frontier.Enqueue(beam.LeftTurn());
+                    frontier.Enqueue(beam.TurnRight());
+                    frontier.Enqueue(beam.TurnLeft());
                 }
                 else
                 {
@@ -106,30 +106,21 @@ internal class Day16Solver : ISolver
             }
         }
 
-        var energizedSpaces = beamsVisited.Select(b => b.Position).ToHashSet();
-        return energizedSpaces.Count;
-    }
-
-    private static Point2D RightTurn(Point2D direction)
-    {
-        return new Point2D(-direction.Y, direction.X);
-    }
-
-    private static Point2D LeftTurn(Point2D direction)
-    {
-        return new Point2D(direction.Y, -direction.X);
+        return beamsVisited.Select(b => b.Position)
+            .Distinct()
+            .Count();
     }
 
     private record Beam(Point2D Position, Point2D Direction)
     {
-        public Beam RightTurn()
+        public Beam TurnRight()
         {
             var newDirection = new Point2D(-Direction.Y, Direction.X);
             var newPosition = Position.Add(newDirection);
             return new Beam(newPosition, newDirection);
         }
 
-        public Beam LeftTurn()
+        public Beam TurnLeft()
         {
             var newDirection = new Point2D(Direction.Y, -Direction.X);
             var newPosition = Position.Add(newDirection);
