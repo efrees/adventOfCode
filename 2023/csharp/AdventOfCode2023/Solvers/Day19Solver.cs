@@ -21,20 +21,9 @@ internal class Day19Solver : ISolver
 
     private static long GetPart1Answer(List<string> lines)
     {
-        var workflows = new Dictionary<string, Workflow>();
+        var workflows = ParseWorkflowsSection(lines);
 
-        var index = 0;
-        while (lines[index] != string.Empty)
-        {
-            if (lines[index] == string.Empty)
-            {
-                break;
-            }
-
-            var workflow = Workflow.Parse(lines[index]);
-            workflows[workflow.Name] = workflow;
-            index++;
-        }
+        var index = workflows.Count;
 
         var acceptedTotal = 0;
         var partPattern = new Regex(@"{x=(\d+),m=(\d+),a=(\d+),s=(\d+)}");
@@ -62,13 +51,50 @@ internal class Day19Solver : ISolver
 
     private static long GetPart2Answer(List<string> lines)
     {
-        return -1;
+        var workflows = ParseWorkflowsSection(lines);
+
+        var startWorkflow = "in";
+        var fullPartRange = new PartRange();
+
+        var searchQueue = new Queue<(string workflow, PartRange partRange)>();
+        searchQueue.Enqueue((startWorkflow, fullPartRange));
+
+        var acceptedCombinations = 0L;
+
+        while (searchQueue.Any())
+        {
+            var (workflowName, range) = searchQueue.Dequeue();
+
+            if (workflowName == "A")
+            {
+                acceptedCombinations += range.GetNumberOfCombinations();
+            }
+            else if (workflowName != "R")
+            {
+                var workflow = workflows[workflowName];
+                var rangesToProcess = workflow.ApplyRulesToSplitRange(range);
+                foreach (var targetedRange in rangesToProcess)
+                {
+                    searchQueue.Enqueue(targetedRange);
+                }
+            }
+        }
+
+        return acceptedCombinations;
+    }
+
+    private static Dictionary<string, Workflow> ParseWorkflowsSection(List<string> lines)
+    {
+        return lines
+            .TakeWhile(line => line != string.Empty)
+            .Select(Workflow.Parse)
+            .ToDictionary(workflow => workflow.Name);
     }
 
     private class Workflow
     {
         public string Name { get; init; }
-        public List<SortRule> Rules { get; init; } = new List<SortRule>();
+        public List<SortRule> Rules { get; init; } = new();
 
         public static Workflow Parse(string input)
         {
@@ -82,14 +108,38 @@ internal class Day19Solver : ISolver
 
         public string ApplyToPart((int x, int m, int a, int s) part)
         {
-            return Rules.First(rule => rule.Condition(part)).Destination;
+            return Rules.First(rule => rule.MatchesPart(part)).DestinationWorkflow;
+        }
+
+        public IEnumerable<(string workflow, PartRange matchingRange)> ApplyRulesToSplitRange(PartRange range)
+        {
+            // Split into non-overlapping ranges, based on each rule
+            var remainingRange = range;
+            foreach (var rule in Rules)
+            {
+                if (remainingRange == PartRange.Empty)
+                {
+                    break;
+                }
+
+                var (matchedRange, unmatchedRange) = rule.SplitRange(remainingRange);
+
+                if (matchedRange != PartRange.Empty)
+                {
+                    yield return (rule.DestinationWorkflow, matchedRange);
+                }
+
+                remainingRange = unmatchedRange;
+            }
         }
     }
 
     private class SortRule
     {
-        public Func<(int x, int m, int a, int s), bool> Condition { get; init; }
-        public string Destination { get; init; }
+        public char Parameter { get; init; }
+        public char Operator { get; init; }
+        public int FilterValue { get; init; }
+        public string DestinationWorkflow { get; init; }
 
         public static SortRule Parse(string input)
         {
@@ -97,8 +147,8 @@ internal class Day19Solver : ISolver
             {
                 return new SortRule
                 {
-                    Condition = _ => true,
-                    Destination = input[..^1],
+                    Parameter = '_',
+                    DestinationWorkflow = input[..^1],
                 };
             }
 
@@ -110,19 +160,117 @@ internal class Day19Solver : ISolver
 
             return new SortRule
             {
-                Condition = part => (variable, op) switch
-                {
-                    ('x', '>') => part.x > filterValue,
-                    ('x', '<') => part.x < filterValue,
-                    ('m', '>') => part.m > filterValue,
-                    ('m', '<') => part.m < filterValue,
-                    ('a', '>') => part.a > filterValue,
-                    ('a', '<') => part.a < filterValue,
-                    ('s', '<') => part.s < filterValue,
-                    ('s', '>') => part.s > filterValue,
-                },
-                Destination = destination,
+                Parameter = variable,
+                Operator = op,
+                FilterValue = filterValue,
+                DestinationWorkflow = destination,
             };
+        }
+
+        public bool MatchesPart((int x, int m, int a, int s) part)
+        {
+            if (Parameter == '_')
+            {
+                return true;
+            }
+
+            return (Parameter, Operator) switch
+            {
+                ('x', '>') => part.x > FilterValue,
+                ('x', '<') => part.x < FilterValue,
+                ('m', '>') => part.m > FilterValue,
+                ('m', '<') => part.m < FilterValue,
+                ('a', '>') => part.a > FilterValue,
+                ('a', '<') => part.a < FilterValue,
+                ('s', '<') => part.s < FilterValue,
+                ('s', '>') => part.s > FilterValue,
+            };
+        }
+
+        public (PartRange matched, PartRange unmatched) SplitRange(PartRange partRange)
+        {
+            if (Parameter == '_')
+            {
+                return (partRange, PartRange.Empty);
+            }
+
+            var attributeRangeToSplit = Parameter switch
+            {
+                'x' => partRange.XRange,
+                'm' => partRange.MRange,
+                'a' => partRange.ARange,
+                's' => partRange.SRange
+            };
+
+            var replacementRanges = SplitAttributeRangeByFilterValue(attributeRangeToSplit);
+            var matched = replacementRanges.matched == (0, 0)
+                ? PartRange.Empty
+                : partRange.ReplaceAttributeRange(Parameter, replacementRanges.matched);
+            var unmatched = replacementRanges.unmatched == (0, 0)
+                ? PartRange.Empty
+                : partRange.ReplaceAttributeRange(Parameter, replacementRanges.unmatched);
+            return (matched, unmatched);
+        }
+
+        private ((int min, int max) matched, (int min, int max) unmatched) SplitAttributeRangeByFilterValue((int min, int max) range)
+        {
+            var emptyRange = (0, 0);
+
+            if (Operator == '>')
+            {
+                var matched = range.max > FilterValue
+                    ? (FilterValue + 1, range.max)
+                    : emptyRange;
+                var unmatched = range.min <= FilterValue
+                    ? (range.min, FilterValue)
+                    : emptyRange;
+                return (matched, unmatched);
+            }
+            else
+            {
+                var matched = range.min < FilterValue
+                    ? (range.min, FilterValue - 1)
+                    : emptyRange;
+                var unmatched = range.max >= FilterValue
+                    ? (FilterValue, range.max)
+                    : emptyRange;
+                return (matched, unmatched);
+            }
+        }
+    }
+
+    private record PartRange
+    {
+        public static readonly PartRange Empty = new()
+        {
+            XRange = (0, -1),
+            MRange = (0, -1),
+            ARange = (0, -1),
+            SRange = (0, -1),
+        };
+
+        public (int min, int max) XRange { get; init; } = (1, 4000);
+        public (int min, int max) MRange { get; init; } = (1, 4000);
+        public (int min, int max) ARange { get; init; } = (1, 4000);
+        public (int min, int max) SRange { get; init; } = (1, 4000);
+
+        public PartRange ReplaceAttributeRange(char attribute, (int min, int max) newRange)
+        {
+            return attribute switch
+            {
+                'x' => this with { XRange = newRange },
+                'm' => this with { MRange = newRange },
+                'a' => this with { ARange = newRange },
+                's' => this with { SRange = newRange },
+            };
+        }
+
+        public long GetNumberOfCombinations()
+        {
+            return (long)(XRange.max - XRange.min + 1)
+                * (MRange.max - MRange.min + 1)
+                * (ARange.max - ARange.min + 1)
+                * (SRange.max - SRange.min + 1);
         }
     }
 }
