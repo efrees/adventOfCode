@@ -1,0 +1,101 @@
+C:\Development\exercises\adventOfCode\2023\csharp\AdventOfCode2023\Solvers\Day07Solver.cs(87,42): warning CS8509: The switch expression does not handle all possible values of its input type (it is not exhaustive). For example, the pattern '(3, 0)' is not covered. [C:\Development\exercises\adventOfCode\2023\csharp\AdventOfCode2023\AdventOfCode2023.csproj]
+C:\Development\exercises\adventOfCode\2023\csharp\AdventOfCode2023\Solvers\Day19Solver.cs(259,30): warning CS8509: The switch expression does not handle all possible values of its input type (it is not exhaustive). For example, the pattern ''\0'' is not covered. [C:\Development\exercises\adventOfCode\2023\csharp\AdventOfCode2023\AdventOfCode2023.csproj]
+C:\Development\exercises\adventOfCode\2023\csharp\AdventOfCode2023\Solvers\Day19Solver.cs(177,42): warning CS8509: The switch expression does not handle all possible values of its input type (it is not exhaustive). For example, the pattern '('x', '\0')' is not covered. [C:\Development\exercises\adventOfCode\2023\csharp\AdventOfCode2023\AdventOfCode2023.csproj]
+C:\Development\exercises\adventOfCode\2023\csharp\AdventOfCode2023\Solvers\Day19Solver.cs(197,51): warning CS8509: The switch expression does not handle all possible values of its input type (it is not exhaustive). For example, the pattern ''\0'' is not covered. [C:\Development\exercises\adventOfCode\2023\csharp\AdventOfCode2023\AdventOfCode2023.csproj]
+Day 1
+Output (part 1): 54916
+Output (part 2): 54728
+Solved in 0.057969100s
+
+Day 2
+Output (part 1): 2512
+Output (part 2): 67335
+Solved in 0.052244900s
+
+Day 3
+Output (part 1): 527144
+Output (part 2): 81463996
+Solved in 0.077490100s
+
+Day 4
+Output (part 1): 21105
+Output (part 2): 5329815
+Solved in 0.042036100s
+
+Day 5
+Output (part 1): 107430936
+Output (part 2): 23738616
+Solved in 0.066367600s
+
+Day 6
+Output (part 1): 1195150
+Output (part 2): 42550411
+Solved in 0.073932400s
+
+Day 7
+Output (part 1): 249638405
+Output (part 2): 249776650
+Solved in 0.054544700s
+
+Day 8
+Output (part 1): 19631
+Output (part 2): 21003205388413
+Solved in 0.043014300s
+
+Day 9
+Output (part 1): 2098530125
+Output (part 2): 1016
+Solved in 0.044467400s
+
+Day 10
+Output (part 1): 7012
+Output (part 2): 395
+Solved in 0.140789900s
+
+Day 11
+Output (part 1): 10276166
+Output (part 2): 598693078798
+Solved in 0.097049600s
+
+Day 12
+Output (part 1): 7169
+Output (part 2): -1
+Solved in 0.122467600s
+
+Day 13
+Output (part 1): 30802
+Output (part 2): 37876
+Solved in 0.027883700s
+
+Day 14
+Output (part 1): 108813
+Output (part 2): 104533
+Solved in 0.175570300s
+
+Day 15
+Output (part 1): 517551
+Output (part 2): 286097
+Solved in 0.036271300s
+
+Day 16
+Output (part 1): 8249
+Output (part 2): 8444
+Solved in 2.016029900s
+
+Day 17
+Output (part 1): 724
+Output (part 2): 877
+Solved in 4.067759500s
+
+Day 18
+Output (part 1): 45159
+Output (part 2): 134549294799713
+Solved in 0.033370900s
+
+Day 19
+Output (part 1): 333263
+Output (part 2): 130745440937650
+Solved in 0.039289800s
+
+Total time: 7.274618700s
+
