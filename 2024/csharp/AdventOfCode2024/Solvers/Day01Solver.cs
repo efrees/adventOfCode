@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 
-namespace AdventOfCode2023.Solvers;
+namespace AdventOfCode2024.Solvers;
 
 internal class Day01Solver : ISolver
 {
@@ -13,50 +12,32 @@ internal class Day01Solver : ISolver
     public void Solve()
     {
         Console.WriteLine(Name);
-        var lines = Input.GetLinesFromFile(InputFile).ToList();
+        var lines = Input.GetLinesFromFile(InputFile)
+            .Select(line => line.Split(" ", StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToArray())
+            .ToList();
 
         Console.WriteLine($"Output (part 1): {GetPart1Answer(lines)}");
         Console.WriteLine($"Output (part 2): {GetPart2Answer(lines)}");
     }
 
-    private static long GetPart1Answer(List<string> lines)
+    private static long GetPart1Answer(List<int[]> pairs)
     {
-        var firstDigits = lines.Select(line => line.First(char.IsDigit));
-        var lastDigits = lines.Select(line => line.Last(char.IsDigit));
+        var leftList = pairs.Select(p => p[0]).Order();
+        var rightList = pairs.Select(p => p[1]).Order();
 
-        return firstDigits
-            .Zip(lastDigits, (first, last) => Convert.ToInt32($"{first}{last}"))
+        return leftList.Zip(rightList, (left, right) => Math.Abs(left - right))
             .Sum();
     }
 
-    private static long GetPart2Answer(List<string> lines)
+    private static long GetPart2Answer(List<int[]> pairs)
     {
-        // Just getting the whole list of matches with one Regex misses the overlapping ones
-        var firstDigitPattern = new Regex("[1-9]|one|two|three|four|five|six|seven|eight|nine");
-        var lastDigitPattern = new Regex("[1-9]|one|two|three|four|five|six|seven|eight|nine", RegexOptions.RightToLeft);
-
-        var firstDigits = lines.Select(line => firstDigitPattern.Match(line).Value).Select(GetDigit);
-        var lastDigits = lines.Select(line => lastDigitPattern.Match(line).Value).Select(GetDigit);
-
-        return firstDigits
-            .Zip(lastDigits, (first, last) => Convert.ToInt32($"{first}{last}"))
-            .Sum();
-    }
-
-    private static long GetDigit(string digit)
-    {
-        return digit switch
+        var leftList = pairs.Select(p => p[0]);
+        var counts = pairs.Select(p => p[1]).Aggregate(new Dictionary<int, int>(), (agg, next) =>
         {
-            "one" => 1,
-            "two" => 2,
-            "three" => 3,
-            "four" => 4,
-            "five" => 5,
-            "six" => 6,
-            "seven" => 7,
-            "eight" => 8,
-            "nine" => 9,
-            var other => Convert.ToInt32(other)
-        };
+            agg[next] = agg.GetValueOrDefault(next, 0) + 1;
+            return agg;
+        });
+
+        return leftList.Select(value => value * counts.GetValueOrDefault(value, 0)).Sum();
     }
 }
