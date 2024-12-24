@@ -23,4 +23,10 @@ public static class CollectionExtensions
             from secondItem in second
             select (firstItem, secondItem);
     }
+
+    public static TItem Middle<TItem>(this IList<TItem> collection)
+    {
+        var middleIndex = collection.Count / 2;
+        return collection[middleIndex];
+    }
 }
