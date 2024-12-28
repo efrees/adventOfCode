@@ -31,6 +31,11 @@ namespace AdventOfCode2024.Grid
             return _data.Keys.Select(k => (Point2D)k);
         }
 
+        public IEnumerable<(Point2D Coordinates, TCell Value)> GetAllCells()
+        {
+            return _data.Keys.Select(k => ((Point2D)k, GetCell(k)));
+        }
+
         public void SetCell(Point2D coordinates, TCell value)
         {
             xMin = Math.Min(xMin, coordinates.X);
@@ -48,6 +53,14 @@ namespace AdventOfCode2024.Grid
         public (long x, long y) FindValueLocation(TCell searchValue)
         {
             return _data.FirstOrDefault(p => p.Value.Equals(searchValue)).Key;
+        }
+
+        public bool IsInCurrentBounds(Point2D coordinates)
+        {
+            return xMin <= coordinates.X
+                && yMin <= coordinates.Y
+                && xMax >= coordinates.X
+                && yMax >= coordinates.Y;
         }
 
         /// <summary>
