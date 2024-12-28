@@ -14,13 +14,14 @@ public static class Program
         new Day02Solver(),
         new Day03Solver(),
         new Day04Solver(),
-        new Day05Solver(),
-        new Day06Solver(),
-        new Day07Solver(),
-        new Day08Solver(),
-        new Day09Solver(),
-        new Day10Solver(),
+        //new Day05Solver(),
+        //new Day06Solver(),
+        //new Day07Solver(),
+        //new Day08Solver(),
+        //new Day09Solver(),
+        //new Day10Solver(),
         new Day11Solver(),
+        new Day12Solver(),
     };
 
     public static void Main()
