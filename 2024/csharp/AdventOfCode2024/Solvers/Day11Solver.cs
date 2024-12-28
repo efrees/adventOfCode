@@ -56,6 +56,59 @@ internal class Day11Solver : ISolver
 
     private static long GetPart2Answer(List<string> lines)
     {
-        return 0;
+        var lineOfNumbers = lines.First().Split(' ').Select(long.Parse);
+
+        var totalCount = 0L;
+        var skipAheadMemory = new Dictionary<long, List<long>>();
+        var countMemory = new Dictionary<(long start, long blinks), long>();
+        foreach (var startNumber in lineOfNumbers)
+        {
+            totalCount += EvolveWithMemory(startNumber, 75, skipAheadMemory, countMemory);
+        }
+
+        return totalCount;
+    }
+
+    private static long EvolveWithMemory(long startNumber,
+        int blinkCount,
+        Dictionary<long, List<long>> skipAheadMemory,
+        Dictionary<(long start, long blinks), long> countMemory)
+    {
+        if (countMemory.TryGetValue((startNumber, blinkCount), out var count))
+        {
+            return count;
+        }
+
+        var skipDistance = 5;
+        List<long> intermediateLine = [startNumber];
+        if (blinkCount >= skipDistance && skipAheadMemory.TryGetValue(startNumber, out var storedLine))
+        {
+            intermediateLine = storedLine;
+            blinkCount -= skipDistance;
+        }
+        else
+        {
+            for (var i = 0; i < skipDistance && blinkCount > 0; i++)
+            {
+                intermediateLine = GetNextEvolution(intermediateLine).ToList();
+                blinkCount--;
+            }
+        }
+
+        if (blinkCount == 0)
+        {
+            return intermediateLine.Count;
+        }
+
+        skipAheadMemory[startNumber] = intermediateLine;
+        var totalCount = 0L;
+        foreach (var nextStart in intermediateLine)
+        {
+            var subCount = EvolveWithMemory(nextStart, blinkCount, skipAheadMemory, countMemory);
+            countMemory[(nextStart, blinkCount)] = subCount;
+            totalCount += subCount;
+        }
+
+        return totalCount;
     }
 }
