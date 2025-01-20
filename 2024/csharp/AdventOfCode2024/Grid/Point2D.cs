@@ -53,6 +53,11 @@ namespace AdventOfCode2024.Grid
             return new(X - other.X, Y - other.Y);
         }
 
+        public Point2D TimesScalar(long scalar)
+        {
+            return new(X * scalar, Y * scalar);
+        }
+
         public long ManhattanDistance(Point2D other)
         {
             return Math.Abs(X - other.X)
