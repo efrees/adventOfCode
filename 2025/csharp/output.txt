@@ -1,0 +1,7 @@
+Day 1
+Output (part 1): 989
+Output (part 2): 5941
+Solved in 0.035351800s
+
+Total time: 0.036979800s
+
