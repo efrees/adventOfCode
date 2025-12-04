@@ -1,12 +1,17 @@
 Day 1
 Output (part 1): 989
 Output (part 2): 5941
-Solved in 0.086349100s
+Solved in 0.022665300s
 
 Day 2
 Output (part 1): 5398419778
 Output (part 2): 15704845910
-Solved in 0.035783800s
+Solved in 0.009478400s
 
-Total time: 0.133291300s
+Day 3
+Output (part 1): 17554
+Output (part 2): 175053592950232
+Solved in 0.016955600s
+
+Total time: 0.054029400s
 
