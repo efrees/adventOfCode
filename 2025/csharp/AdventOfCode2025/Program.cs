@@ -13,6 +13,7 @@ public static class Program
         new Day01Solver(),
         new Day02Solver(),
         new Day03Solver(),
+        new Day04Solver(),
     };
 
     public static void Main()

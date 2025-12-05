@@ -23,6 +23,21 @@ namespace AdventOfCode2025.Grid
             };
         }
 
+        public IEnumerable<Point2D> GetNeighbors8()
+        {
+            return new[]
+            {
+                new Point2D(X - 1, Y - 1),
+                new Point2D(X, Y - 1),
+                new Point2D(X + 1, Y - 1),
+                new Point2D(X + 1, Y),
+                new Point2D(X + 1, Y + 1),
+                new Point2D(X, Y + 1),
+                new Point2D(X - 1, Y),
+                new Point2D(X - 1, Y + 1),
+            };
+        }
+
         public Point2D GetNorthNeighbor()
         {
             return new(X, Y - 1);
