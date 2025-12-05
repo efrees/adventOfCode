@@ -9,7 +9,7 @@ As usual, I'll probably keep solving these over time, so I'll track which soluti
 
 |      |1|2|3|4|5|6|7|8|9|10|11|12|
 |------|-|-|-|-|-|-|-|-|-|--|--|--|
-|**C#**|🌟|🌟| | | | | | | |  |  |  |
+|**C#**|🌟|🌟|🌟|🌟|🌟| | | | |  |  |  |
 
 ⭐ - First star completed\
 🌟 - Both stars completed
@@ -39,7 +39,7 @@ I know! It's a manual process. That bugs me too. I'm open to suggestions, but I 
 
 ## Environment
 * nvim / Visual Studio 2026
-* [.NET 10](https://dotnet.microsoft.com/download/dotnet/10.0) / C# 14
+* [.NET 10](https://dotnet.microsoft.com/download/dotnet/10.0) / C# 12
 
 ## Links
 * [Advent of Code](https://adventofcode.com)
