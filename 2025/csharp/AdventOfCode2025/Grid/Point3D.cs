@@ -6,9 +6,14 @@ namespace AdventOfCode2025.Grid
     {
         public static Point3D Origin { get; } = new(0, 0, 0);
 
-        public static implicit operator (long x, long y, long z)(Point3D point) => (x: point.X, y: point.Y, z: point.Z);
-        public static implicit operator Point3D((long x, long y, long z) coordinates) => new(coordinates.x, coordinates.y, coordinates.z);
-        public static implicit operator Point3D((int x, int y, long z) coordinates) => new(coordinates.x, coordinates.y, coordinates.z);
+        public static implicit operator (long x, long y, long z)(Point3D point) =>
+            (x: point.X, y: point.Y, z: point.Z);
+
+        public static implicit operator Point3D((long x, long y, long z) coordinates) =>
+            new(coordinates.x, coordinates.y, coordinates.z);
+
+        public static implicit operator Point3D((int x, int y, long z) coordinates) =>
+            new(coordinates.x, coordinates.y, coordinates.z);
 
         public Point3D Add(Point3D other)
         {
@@ -22,9 +27,15 @@ namespace AdventOfCode2025.Grid
 
         public long ManhattanDistance(Point3D other)
         {
-            return Math.Abs(X - other.X)
-                   + Math.Abs(Y - other.Y)
-                   + Math.Abs(Z - other.Z);
+            return Math.Abs(X - other.X) + Math.Abs(Y - other.Y) + Math.Abs(Z - other.Z);
+        }
+
+        public double StraightLineDistance(Point3D other)
+        {
+            var xDiff = X - other.X;
+            var yDiff = Y - other.Y;
+            var zDiff = Z - other.Z;
+            return Math.Sqrt(xDiff * xDiff + yDiff * yDiff + zDiff * zDiff);
         }
 
         public Point3D Rotate90AroundX()
@@ -43,3 +54,4 @@ namespace AdventOfCode2025.Grid
         }
     }
 }
+
