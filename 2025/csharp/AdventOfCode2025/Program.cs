@@ -1,8 +1,8 @@
-﻿using AdventOfCode2025.Solvers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using AdventOfCode2025.Solvers;
 
 namespace AdventOfCode2025;
 
@@ -18,13 +18,16 @@ public static class Program
         new Day06Solver(),
         new Day07Solver(),
         new Day08Solver(),
+        new NullSolver("Day 9"),
+        new NullSolver("Day 10"),
+        new Day11Solver(),
     };
 
     public static void Main()
     {
         ReportTime(SolveAll, "Total time:");
 #if RUNTIMES
-            ReportAllAverages();
+        ReportAllAverages();
 #endif
     }
 
@@ -47,7 +50,9 @@ public static class Program
         const int repetitions = 5;
         Console.WriteLine("Beginning actual runs for average");
 
-        var results = Solvers.Select((solver, i) => (day: i + 1, time: GetAverageTime(solver.Solve, repetitions))).ToList();
+        var results = Solvers
+            .Select((solver, i) => (day: i + 1, time: GetAverageTime(solver.Solve, repetitions)))
+            .ToList();
 
         Console.WriteLine($"------\nAverage Runtime in Seconds ({repetitions} attempts)");
         Console.WriteLine("Day\tC#");
