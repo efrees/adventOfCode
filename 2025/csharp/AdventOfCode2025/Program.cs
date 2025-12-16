@@ -18,7 +18,7 @@ public static class Program
         new Day06Solver(),
         new Day07Solver(),
         new Day08Solver(),
-        new NullSolver("Day 9"),
+        new Day09Solver(),
         new NullSolver("Day 10"),
         new Day11Solver(),
     };
